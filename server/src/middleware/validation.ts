@@ -1,22 +1,38 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
+import { AuthRequest } from "./auth.mid";
+import RecipeModel from "../models/Recipe.model";
 
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-export const validatePassword = (password: string): { isValid: boolean; message?: string } => {
+export const validatePassword = (
+  password: string
+): { isValid: boolean; message?: string } => {
   if (password.length < 6) {
-    return { isValid: false, message: 'Password must be at least 6 characters long' };
+    return {
+      isValid: false,
+      message: "Password must be at least 6 characters long",
+    };
   }
   if (!/(?=.*[a-z])/.test(password)) {
-    return { isValid: false, message: 'Password must contain at least one lowercase letter' };
+    return {
+      isValid: false,
+      message: "Password must contain at least one lowercase letter",
+    };
   }
   if (!/(?=.*[A-Z])/.test(password)) {
-    return { isValid: false, message: 'Password must contain at least one uppercase letter' };
+    return {
+      isValid: false,
+      message: "Password must contain at least one uppercase letter",
+    };
   }
   if (!/(?=.*\d)/.test(password)) {
-    return { isValid: false, message: 'Password must contain at least one number' };
+    return {
+      isValid: false,
+      message: "Password must contain at least one number",
+    };
   }
   return { isValid: true };
 };
@@ -30,19 +46,23 @@ export const validateRegisterInput = (
 
   // Check required fields
   if (!email || !password || !name) {
-    res.status(400).json({ message: 'All fields (email, password, name) are required' });
+    res
+      .status(400)
+      .json({ message: "All fields (email, password, name) are required" });
     return;
   }
 
   // Validate email format
   if (!validateEmail(email)) {
-    res.status(400).json({ message: 'Please provide a valid email address' });
+    res.status(400).json({ message: "Please provide a valid email address" });
     return;
   }
 
   // Validate name length
   if (name.trim().length < 2) {
-    res.status(400).json({ message: 'Name must be at least 2 characters long' });
+    res
+      .status(400)
+      .json({ message: "Name must be at least 2 characters long" });
     return;
   }
 
@@ -65,15 +85,122 @@ export const validateLoginInput = (
 
   // Check required fields
   if (!email || !password) {
-    res.status(400).json({ message: 'Email and password are required' });
+    res.status(400).json({ message: "Email and password are required" });
     return;
   }
 
   // Validate email format
   if (!validateEmail(email)) {
-    res.status(400).json({ message: 'Please provide a valid email address' });
+    res.status(400).json({ message: "Please provide a valid email address" });
     return;
   }
 
   next();
-}; 
+};
+
+export const validateCreateInput = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { title, ingredients, instructions } = req.body;
+
+  // Check required fields
+  if (!title || !ingredients || !instructions) {
+    res.status(400).json({ message: "missing fields for recipe" });
+    return;
+  }
+  if (!Array.isArray(ingredients) || !Array.isArray(instructions)) {
+    res
+      .status(400)
+      .json({ message: "ingredients and instructions must be an array!" });
+    return;
+  }
+  if (title.length < 2) {
+    res.status(400).json({ message: "title must be at least tow characters!" });
+    return;
+  }
+  if (ingredients.length < 2) {
+    res.status(400).json({ message: "must have at least two ingredients!" });
+    return;
+  }
+  if (!instructions.length) {
+    res.status(400).json({ message: "must have at least one instructions!" });
+    return;
+  }
+
+  next();
+};
+export const validatEditInput = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { title, ingredients, instructions } = req.body;
+
+  // Check required fields
+  if (!title && !ingredients && !instructions) {
+    res.status(400).json({ message: "At leat one field is required" });
+    return;
+  }
+  if (
+    (!Array.isArray(ingredients) && ingredients) ||
+    (instructions && !Array.isArray(instructions))
+  ) {
+    res
+      .status(400)
+      .json({ message: "ingredients and instructions must be an array!" });
+    return;
+  }
+  if (title && title.length < 2) {
+    res.status(400).json({ message: "title must be at least tow characters!" });
+    return;
+  }
+  if (ingredients && ingredients.length < 2) {
+    res.status(400).json({ message: "must have at least two ingredients!" });
+    return;
+  }
+  if (instructions && !instructions.length) {
+    res.status(400).json({ message: "must have at least one instructions!" });
+    return;
+  }
+
+  next();
+};
+
+export const validateRecipeAndOwner = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const recipe = await RecipeModel.findById(id);
+    // console.log("-----------------------------");
+    // console.log(recipe);
+
+    if (!recipe) {
+      res.status(404).json({
+        success: false,
+        message: `Recipe With id: ${id} Not Found`,
+      });
+      return;
+    }
+
+    if (req.user?.userId == recipe.addedBy) {
+      next();
+    } else {
+      res.status(403).json({
+        success: false,
+        message: "You are not authorized to effect a recipe you havent craeted",
+      });
+      return;
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error during recipe ownership validation",
+      error,
+    });
+  }
+};

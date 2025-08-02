@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import UserModel from "../models/User";
 import { AuthRequest } from "../middleware/auth.mid";
-import { postsModel } from "../models/Posts.model";
+import { postsModel } from "../models/Reviews.model";
 import { ERROR_NAMES } from "../middleware/errorHandler";
 
 function getAll(req: Request, res: Response) {

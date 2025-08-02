@@ -5,7 +5,7 @@ import {
   validateRegisterInput,
   validateLoginInput,
 } from "../middleware/validation";
-import { postsController } from "../controllers/posts-controller";
+import { postsController } from "../controllers/reviews.controller";
 
 const router = express.Router();
 

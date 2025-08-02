@@ -58,23 +58,32 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface IReview {
-  id: string;
+// export interface IReview {
+//   id: string;
+//   title: string;
+//   content: string;
+//   rating: number;
+//   authorId: string;
+//   authorName: string;
+//   createdAt: Date;
+//   updatedAt: Date;
+// }
+export interface IReview extends Document {
+  _id: mongoose.Types.ObjectId;
+  book: mongoose.Types.ObjectId;
+  reviewer: mongoose.Types.ObjectId;
+  rating: number;
   title: string;
   content: string;
-  rating: number;
-  authorId: string;
-  authorName: string;
   createdAt: Date;
   updatedAt: Date;
 }
 export interface IRecipe {
-  id: string;
+  _id: mongoose.Types.ObjectId;
+  addedBy: mongoose.Types.ObjectId;
   title: string;
   ingredients: string[];
   instructions: string[];
-  authorId: string;
-  authorName: string;
   createdAt: Date;
   updatedAt: Date;
 }
