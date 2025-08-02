@@ -2,8 +2,6 @@ import express from "express";
 import AuthController from "../controllers/auth.controller";
 import { authenticateToken } from "../middleware/auth.mid";
 import {
-  validateRegisterInput,
-  validateLoginInput,
   validateCreateInput,
   validateRecipeAndOwner,
   validatEditInput,
@@ -13,6 +11,8 @@ import recipeController from "../controllers/recipe.controller";
 const router = express.Router();
 
 router.get("/", recipeController.getAll);
+router.get("/:id", recipeController.getbyId);
+router.get("/full", recipeController.getFull);
 router.post(
   "/",
   authenticateToken,
@@ -32,16 +32,5 @@ router.patch(
   validatEditInput,
   recipeController.update
 );
-// // Authentication routes
-// router.post("/register", validateRegisterInput, AuthController.register);-
-// router.post("/login", validateLoginInput, AuthController.login);
-// router.post("/logout", AuthController.logout);
-
-// // Protected routes
-// router.get("/me", authenticateToken, AuthController.getMe);
-
-// // Admin/Development routes (protected)
-// router.get("/users", authenticateToken, AuthController.getAllUsers);
-// router.delete("/users/:id", authenticateToken, AuthController.deleteUser);
 
 export default router;

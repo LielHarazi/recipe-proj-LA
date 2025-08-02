@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthRequest } from "./auth.mid";
 import RecipeModel from "../models/Recipe.model";
+import ReviewModel from "../models/Reviews.model";
 
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -203,4 +204,72 @@ export const validateRecipeAndOwner = async (
       error,
     });
   }
+};
+export const validateReviewCreateInput = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { rating, comment } = req.body;
+
+  // Check required fields
+  if (!rating || !comment) {
+    res.status(400).json({ message: "missing fields for review" });
+    return;
+  }
+
+  if (comment.length < 5) {
+    res.status(400).json({ message: "comment must be at least 5 characters!" });
+    return;
+  }
+  if (!Number(rating) || Number(rating) < 0 || Number(rating) > 5) {
+    res.status(400).json({ message: "rating must be a number between 1-5" });
+    return;
+  }
+
+  next();
+};
+export const validateReviewUpdate = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { rating, comment } = req.body;
+
+  // Check required fields
+  if (!rating && !comment) {
+    res.status(400).json({ message: "at least one field is needed" });
+    return;
+  }
+
+  if (comment && comment.length < 5) {
+    res.status(400).json({ message: "comment must be at least 5 characters!" });
+    return;
+  }
+  if (rating && (!Number(rating) || Number(rating) < 0 || Number(rating) > 5)) {
+    res.status(400).json({ message: "rating must be a number between 1-5" });
+    return;
+  }
+  const { reviewID } = req.params;
+  if (!reviewID) {
+    res.status(404).json({ message: "review not found" });
+    return;
+  }
+  try {
+    const review = await ReviewModel.findById(reviewID);
+    if (!reviewID) {
+      res.status(404).json({ message: "review not found" });
+      return;
+    }
+    if (String(req.user?.userId) !== String(review?.reviewer._id)) {
+      res.status(401).json({ message: "you cannot edit other person review!" });
+      return;
+    }
+  } catch (error) {
+    console.error("validating reviewer error:", error);
+    res
+      .status(500)
+      .json({ message: "Server error during validating reviewer", error });
+  }
+  next();
 };

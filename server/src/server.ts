@@ -33,7 +33,7 @@ app.use(morgan("tiny"));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRouter);
-app.use("/api/posts", reviewRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

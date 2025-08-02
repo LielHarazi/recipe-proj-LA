@@ -1,171 +1,244 @@
 import { Request, Response } from "express";
-import UserModel from "../models/User";
+import RecipeModel from "../models/Recipe.model";
 import { AuthRequest } from "../middleware/auth.mid";
-import { postsModel } from "../models/Reviews.model";
-import { ERROR_NAMES } from "../middleware/errorHandler";
+import ReviewModel from "../models/Reviews.model";
+import User from "../models/User";
+const reviewsController = {
+  async getAll(req: Request, res: Response) {
+    const { recipeID } = req.params;
 
-function getAll(req: Request, res: Response) {
-  //   const user = await UserModel.findById(req.user!.userId);
-  const { filter } = req.query;
-  const filterValue = typeof filter === "string" ? filter : "";
+    try {
+      const recipe = await RecipeModel.findById(recipeID);
+      // console.log(recipe);
 
-  //   console.log(req.user);
-  //   console.log(user);
-  //   res.status(200).json({ message: "success" });
-  try {
-    const posts = postsModel.getAll(filterValue);
-    return res.status(200).json({ message: "Posts found", posts });
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ message: "Somthing went wrong couldnt load posts" });
-  }
-}
-function getById(req: AuthRequest, res: Response) {
-  const { postId } = req.params;
-  if (!postId) {
-    return res.status(404).json({ message: "Post not found" });
-  }
-
-  try {
-    const post = postsModel.getById(postId);
-    return res.status(200).json({ message: "Post found", post });
-  } catch (error) {
-    console.log(error);
-    if (error! instanceof Error) {
-      return res.status(500).json({ message: "unknown error" });
-    } else if (error instanceof Error) {
-      switch (error.name) {
-        case ERROR_NAMES.ERROR_POST_NOT_FOUND:
-          return res.status(404).json({ message: "Post not found" });
-        default:
-          return res.status(500).json({ message: "Somthing went wrong" });
+      if (!recipe) {
+        return res.status(404).json({ message: "recipe not found" });
       }
-    }
-  }
-}
-async function create(req: AuthRequest, res: Response) {
-  const { title, content } = req.body ?? {};
-  const user = await UserModel.findById(req.user!.userId);
-
-  if (!title || !content) {
-    console.log("title", title);
-    console.log("content", content);
-    return res.status(400).json({ message: "Missing fields" });
-  }
-  if (!user) {
-    return res.status(401).json({ message: "You must Be logged in" });
-  }
-  try {
-    //   const { name } = req.user;
-    const post = postsModel.create({ title, content }, user);
-    postsModel.postToDiscord("new", { title, content }, user.name);
-    res.status(201).json({ message: "Post created successfully", post });
-  } catch (error) {
-    console.log(error);
-    if (error! instanceof Error) {
-      return res.status(500).json({ message: "unknown error" });
-    } else if (error instanceof Error) {
-      switch (error.name) {
-        case ERROR_NAMES.ERROR_USER_NOT_FOUND:
-          return res.status(401).json({ message: "User not found" });
-        default:
-          return res.status(500).json({ message: "Somthing went wrong" });
+      const reviews = await ReviewModel.find({ recipe: recipeID })
+        .populate("recipe", "title")
+        .populate("reviewer", "name");
+      if (!reviews.length) {
+        res.status(404).json({
+          success: false,
+          message: `No reviews found, add some...`,
+        });
+        return;
       }
+      return res.status(200).json({ message: "reviews found", reviews });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ message: "Somthing went wrong couldnt load reviews" });
     }
-  }
-}
+  },
+  async getById(req: AuthRequest, res: Response) {
+    const { reviewID } = req.params;
+    if (!reviewID) {
+      return res.status(404).json({ message: "review not found" });
+    }
 
-async function update(req: AuthRequest, res: Response) {
-  const user = await UserModel.findById(req.user!.userId);
-  const { postId } = req.params;
-
-  if (!postId) {
-    return res.status(404).json({ message: "Post not found" });
-  }
-  if (!user) {
-    return res.status(401).json({ message: "You must Be logged in" });
-  }
-
-  const { title, content } = req.body ?? {};
-
-  if (!title || !content) {
-    console.log("title", title);
-    console.log("content", content);
-    return res.status(400).json({ message: "Missing fields" });
-  }
-
-  try {
-    // const { username } = req.user;
-    const updatedPost = await postsModel.update(
-      postId,
-      { title, content },
-      user.id
-    );
-    postsModel.postToDiscord("update", { title, content }, user.name);
-
-    return res
-      .status(200)
-      .json({ message: "Post updated successfully", updatedPost });
-  } catch (error) {
-    console.log(error);
-    if (error! instanceof Error) {
-      return res.status(500).json({ message: "unknown error" });
-    } else if (error instanceof Error) {
-      switch (error.name) {
-        case ERROR_NAMES.ERROR_POST_NOT_FOUND:
-          return res.status(404).json({ message: error.message });
-        case ERROR_NAMES.ERROR_USER_NOT_FOUND:
-          return res.status(401).json({ message: error.message });
-        case ERROR_NAMES.ERROR_UNAUTHORIZED:
-          return res.status(403).json({ message: error.message });
-        default:
-          return res.status(500).json({ message: "Something went wrong" });
+    try {
+      const review = await ReviewModel.findById(reviewID).populate([
+        { path: "reviewer", select: "name" },
+        { path: "recipe", select: "title" },
+      ]);
+      if (!review) {
+        res.status(400).json({
+          success: false,
+          message: `Review With id: ${reviewID} Not Found`,
+        });
+        return;
       }
+      return res.status(200).json({ message: "review found", review });
+    } catch (error) {
+      console.error("review error:", error);
+      res.status(500).json({ message: "review error" });
     }
-  }
-}
-async function remove(req: AuthRequest, res: Response) {
-  const user = await UserModel.findById(req.user!.userId);
+  },
+  async create(req: AuthRequest, res: Response) {
+    const { rating, comment } = req.body;
+    const { recipeID } = req.params;
 
-  const { postId } = req.params;
+    try {
+      const user = await User.findById(req.user!.userId);
+      const recipe = await RecipeModel.findById(recipeID);
 
-  if (!postId) {
-    return res.status(404).json({ message: "Post not found" });
-  }
-  if (!user) {
-    return res.status(401).json({ message: "You must Be logged in" });
-  }
-
-  try {
-    const removedPost = await postsModel.remove(postId, user.id);
-    return res
-      .status(200)
-      .json({ message: "Post removed successfully", removedPost });
-  } catch (error) {
-    console.log(error);
-    if (error! instanceof Error) {
-      return res.status(500).json({ message: "unknown error" });
-    } else if (error instanceof Error) {
-      switch (error.name) {
-        case ERROR_NAMES.ERROR_POST_NOT_FOUND:
-          return res.status(404).json({ message: error.message });
-        case ERROR_NAMES.ERROR_USER_NOT_FOUND:
-          return res.status(401).json({ message: error.message });
-        case ERROR_NAMES.ERROR_UNAUTHORIZED:
-          return res.status(403).json({ message: error.message });
-        default:
-          return res.status(500).json({ message: "Something went wrong" });
+      if (!rating || !comment) {
+        return res.status(400).json({ message: "Missing fields" });
       }
-    }
-  }
-}
+      if (!user) {
+        return res.status(401).json({ message: "You must Be logged in" });
+      }
+      if (!recipe) {
+        return res.status(400).json({ message: "no recipe was found" });
+      }
+      if (String(user._id) === String(recipe.addedBy._id)) {
+        return res
+          .status(403)
+          .json({ message: "you cannot review your own recipe be honest!" });
+      }
+      //   const { name } = req.user;
+      const newRating = await ReviewModel.create({
+        rating: Number(rating),
+        comment,
+        reviewer: user._id,
+        recipe: recipe._id,
+      });
 
-export const postsController = {
-  getAll,
-  getById,
-  create,
-  update,
-  remove,
+      const populatedRating = await newRating.populate([
+        { path: "recipe", select: "title" },
+        { path: "reviewer", select: "name" },
+      ]);
+      // postsModel.postToDiscord("new", { title, content }, user.name);
+      res
+        .status(201)
+        .json({ message: "review created successfully", populatedRating });
+    } catch (error) {
+      console.error("creating review error:", error);
+      res
+        .status(500)
+        .json({ message: "Server error during creating review", error });
+    }
+  },
+  async update(req: AuthRequest, res: Response) {
+    try {
+      const { rating, comment } = req.body;
+      const { reviewID } = req.params;
+
+      const upadtedReview = await ReviewModel.findByIdAndUpdate(
+        reviewID,
+        { rating: Number(rating), comment },
+        { new: true }
+      );
+      if (!upadtedReview) {
+        res.status(404).json({
+          success: false,
+          message: `Recipe With id: ${reviewID} Not Found`,
+        });
+        return;
+      }
+      res.json({ success: true, data: upadtedReview });
+    } catch (error) {
+      console.error("editting review error:", error);
+      res
+        .status(500)
+        .json({ message: "Server error during editting review", error });
+    }
+  },
+  async remove(req: AuthRequest, res: Response) {
+    try {
+      const { reviewID } = req.params;
+      if (!reviewID) {
+        res.status(404).json({
+          success: false,
+          message: `Review With id: ${reviewID} Not Found`,
+        });
+        return;
+      }
+      const removed = await ReviewModel.findByIdAndDelete(reviewID);
+      if (!removed) {
+        res.status(400).json({
+          success: false,
+          message: `Review With id: ${reviewID} Not Found`,
+        });
+        return;
+      }
+      res.json({
+        success: true,
+        message: `Review With id: ${reviewID} Deleted, R.I.P`,
+      });
+    } catch (error) {
+      console.error(" error deleting review:", error);
+      res
+        .status(500)
+        .json({ message: "Server error during deleting review", error });
+    }
+  },
 };
+// async function update(req: AuthRequest, res: Response) {
+//   const user = await UserModel.findById(req.user!.userId);
+//   const { postId } = req.params;
+
+//   if (!postId) {
+//     return res.status(404).json({ message: "Post not found" });
+//   }
+//   if (!user) {
+//     return res.status(401).json({ message: "You must Be logged in" });
+//   }
+
+//   const { title, content } = req.body ?? {};
+
+//   if (!title || !content) {
+//     console.log("title", title);
+//     console.log("content", content);
+//     return res.status(400).json({ message: "Missing fields" });
+//   }
+
+//   try {
+//     // const { username } = req.user;
+//     const updatedPost = await postsModel.update(
+//       postId,
+//       { title, content },
+//       user.id
+//     );
+//     // postsModel.postToDiscord("update", { title, content }, user.name);
+
+//     return res
+//       .status(200)
+//       .json({ message: "Post updated successfully", updatedPost });
+//   } catch (error) {
+//     console.log(error);
+//     if (error! instanceof Error) {
+//       return res.status(500).json({ message: "unknown error" });
+//     } else if (error instanceof Error) {
+//       switch (error.name) {
+//         case ERROR_NAMES.ERROR_POST_NOT_FOUND:
+//           return res.status(404).json({ message: error.message });
+//         case ERROR_NAMES.ERROR_USER_NOT_FOUND:
+//           return res.status(401).json({ message: error.message });
+//         case ERROR_NAMES.ERROR_UNAUTHORIZED:
+//           return res.status(403).json({ message: error.message });
+//         default:
+//           return res.status(500).json({ message: "Something went wrong" });
+//       }
+//     }
+//   }
+// }
+// async function remove(req: AuthRequest, res: Response) {
+//   const user = await UserModel.findById(req.user!.userId);
+
+//   const { postId } = req.params;
+
+//   if (!postId) {
+//     return res.status(404).json({ message: "Post not found" });
+//   }
+//   if (!user) {
+//     return res.status(401).json({ message: "You must Be logged in" });
+//   }
+
+//   try {
+//     const removedPost = await postsModel.remove(postId, user.id);
+//     return res
+//       .status(200)
+//       .json({ message: "Post removed successfully", removedPost });
+//   } catch (error) {
+//     console.log(error);
+//     if (error! instanceof Error) {
+//       return res.status(500).json({ message: "unknown error" });
+//     } else if (error instanceof Error) {
+//       switch (error.name) {
+//         case ERROR_NAMES.ERROR_POST_NOT_FOUND:
+//           return res.status(404).json({ message: error.message });
+//         case ERROR_NAMES.ERROR_USER_NOT_FOUND:
+//           return res.status(401).json({ message: error.message });
+//         case ERROR_NAMES.ERROR_UNAUTHORIZED:
+//           return res.status(403).json({ message: error.message });
+//         default:
+//           return res.status(500).json({ message: "Something went wrong" });
+//       }
+//     }
+//   }
+// }
+
+export default reviewsController;

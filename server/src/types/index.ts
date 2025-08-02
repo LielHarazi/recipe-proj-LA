@@ -70,11 +70,10 @@ export interface IUser extends Document {
 // }
 export interface IReview extends Document {
   _id: mongoose.Types.ObjectId;
-  book: mongoose.Types.ObjectId;
+  recipe: mongoose.Types.ObjectId;
   reviewer: mongoose.Types.ObjectId;
   rating: number;
-  title: string;
-  content: string;
+  comment: string;
   createdAt: Date;
   updatedAt: Date;
 }

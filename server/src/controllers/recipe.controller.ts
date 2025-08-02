@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import RecipeModel from "../models/Recipe.model";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/auth.mid";
+import mongoose from "mongoose";
 const recipeController = {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
@@ -29,6 +30,180 @@ const recipeController = {
         .json({ message: "Server error during fetching recipes", error });
     }
   },
+  async getFull(req: Request, res: Response): Promise<void> {
+    try {
+      const recipesWithReviews = await RecipeModel.aggregate([
+        {
+          $lookup: {
+            from: "reviews", // reviews collection
+            localField: "_id", // Recipe._id
+            foreignField: "recipe", // Review.recipe
+            as: "reviews",
+          },
+        },
+        {
+          $unwind: {
+            path: "$reviews",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "reviews.user",
+            foreignField: "_id",
+            as: "reviews.user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$reviews.user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            title: { $first: "$title" },
+            addedBy: { $first: "$addedBy" },
+            ingredients: { $first: "$ingredients" },
+            instructions: { $first: "$instructions" },
+            reviews: {
+              $push: {
+                _id: "$reviews._id",
+                rating: "$reviews.rating",
+                comment: "$reviews.comment",
+                createdAt: "$reviews.createdAt",
+                user: {
+                  _id: "$reviews.user._id",
+                  name: "$reviews.user.name",
+                },
+              },
+            },
+            reviewsCount: {
+              $sum: { $cond: [{ $ifNull: ["$reviews._id", false] }, 1, 0] },
+            },
+            averageRatingRaw: { $avg: "$reviews.rating" }, // out of 5
+          },
+        },
+        {
+          $addFields: {
+            averageRating: { $multiply: ["$averageRatingRaw", 2] }, // out of 10
+          },
+        },
+      ]);
+      if (!recipesWithReviews.length) {
+        res.status(404).json({
+          success: false,
+          message: `No recipes found, add some...`,
+        });
+        return;
+      }
+      res.json({
+        success: true,
+        data: recipesWithReviews,
+      });
+    } catch (error) {
+      console.error("get full recipes error:", error);
+      res
+        .status(500)
+        .json({ message: "Server error during fetching full recipes", error });
+    }
+  },
+  async getbyId(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        res.status(404).json({ message: "recipe not found" });
+        return;
+      }
+      const recipe = await RecipeModel.aggregate([
+        {
+          $match: { _id: new mongoose.Types.ObjectId(id) },
+        },
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "recipe",
+            as: "reviews",
+          },
+        },
+        {
+          $unwind: {
+            path: "$reviews",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "reviews.user",
+            foreignField: "_id",
+            as: "reviews.user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$reviews.user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            title: { $first: "$title" },
+            addedBy: { $first: "$addedBy" },
+            ingredients: { $first: "$ingredients" },
+            instructions: { $first: "$instructions" },
+            reviews: {
+              $push: {
+                _id: "$reviews._id",
+                rating: "$reviews.rating",
+                comment: "$reviews.comment",
+                createdAt: "$reviews.createdAt",
+                user: {
+                  _id: "$reviews.user._id",
+                  name: "$reviews.user.name",
+                },
+              },
+            },
+            reviewsCount: {
+              $sum: { $cond: [{ $ifNull: ["$reviews._id", false] }, 1, 0] },
+            },
+            averageRatingRaw: { $avg: "$reviews.rating" },
+          },
+        },
+        {
+          $addFields: {
+            averageRating: { $multiply: ["$averageRatingRaw", 2] }, // out of 10
+          },
+        },
+        {
+          $project: {
+            averageRatingRaw: 0,
+          },
+        },
+      ]);
+      if (!recipe) {
+        res.status(404).json({
+          success: false,
+          message: ` recipe not found, add some...`,
+        });
+        return;
+      }
+      res.json({
+        success: true,
+        data: recipe,
+      });
+    } catch (error) {
+      console.error("get full recipes error:", error);
+      res
+        .status(500)
+        .json({ message: "Server error during fetching full recipes", error });
+    }
+  },
+
   async create(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { title, ingredients, instructions } = req.body;

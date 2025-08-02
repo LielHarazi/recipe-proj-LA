@@ -1,20 +1,28 @@
 import express from "express";
-import AuthController from "../controllers/auth.controller";
 import { authenticateToken } from "../middleware/auth.mid";
 import {
-  validateRegisterInput,
-  validateLoginInput,
+  validateReviewCreateInput,
+  validateReviewUpdate,
 } from "../middleware/validation";
-import { postsController } from "../controllers/reviews.controller";
+import reviewsController from "../controllers/reviews.controller";
 
 const router = express.Router();
 
-//posts routes
-// router.get("/", authenticateToken, postsController.getAll);
-router.get("/", postsController.getAll);
-router.get("/:postId", authenticateToken, postsController.getById);
-router.post("/", authenticateToken, postsController.create);
-router.put("/:postId", authenticateToken, postsController.update);
-router.delete("/:postId", authenticateToken, postsController.remove);
+//revews routes
+router.get("/:recipeID", reviewsController.getAll);
+router.get("/review/:reviewID", authenticateToken, reviewsController.getById);
+router.post(
+  "/:recipeID",
+  authenticateToken,
+  validateReviewCreateInput,
+  reviewsController.create
+);
+router.patch(
+  "/review/:reviewID",
+  authenticateToken,
+  validateReviewUpdate,
+  reviewsController.update
+);
+router.delete("/review/:reviewID", authenticateToken, reviewsController.remove);
 
 export default router;
