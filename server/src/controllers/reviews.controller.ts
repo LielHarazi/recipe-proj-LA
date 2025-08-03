@@ -78,7 +78,17 @@ const reviewsController = {
           .status(403)
           .json({ message: "you cannot review your own recipe be honest!" });
       }
-      //   const { name } = req.user;
+      const existingReview = await ReviewModel.findOne({
+        recipe: recipe._id,
+        reviewer: user._id,
+      });
+
+      if (existingReview) {
+        return res.status(409).json({
+          message: "You have already reviewed this recipe.",
+        });
+      }
+
       const newRating = await ReviewModel.create({
         rating: Number(rating),
         comment,
@@ -90,7 +100,7 @@ const reviewsController = {
         { path: "recipe", select: "title" },
         { path: "reviewer", select: "name" },
       ]);
-      // postsModel.postToDiscord("new", { title, content }, user.name);
+
       res
         .status(201)
         .json({ message: "review created successfully", populatedRating });

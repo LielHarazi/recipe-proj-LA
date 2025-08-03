@@ -18,6 +18,11 @@ router.get("/me", authenticateToken, AuthController.getMe);
 
 // Admin/Development routes (protected)
 router.get("/users", authenticateToken, AuthController.getAllUsers);
-router.delete("/users/:id", authenticateToken, AuthController.deleteUser);
+router.delete(
+  "/users/:id",
+  authenticateToken,
+  AuthController.deleteUser,
+  AuthController.logout
+);
 
 export default router;

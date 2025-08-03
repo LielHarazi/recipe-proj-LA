@@ -184,10 +184,10 @@ const AuthController = {
       );
 
       // Prevent users from deleting themselves (optional safety check)
-      if (id === String(req.user!.userId)) {
-        console.log(`❌ Self-deletion attempt blocked`);
+      if (id !== String(req.user!.userId)) {
+        console.log(`❌ other-deletion attempt blocked`);
         res.status(400).json({
-          message: "Cannot delete your own account using this endpoint",
+          message: "Cannot delete others account using this endpoint",
         });
         return;
       }
