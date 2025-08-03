@@ -96,13 +96,13 @@ export function CartDialog({ children }: CartDialogProps) {
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                       {item.category}
                     </span>
-                    {item.dietaryRestrictions &&
-                      item.dietaryRestrictions.map((restriction: string) => (
+                    {item.tags &&
+                      item.tags.map((tag: string) => (
                         <span
-                          key={restriction}
+                          key={tag}
                           className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
                         >
-                          {restriction}
+                          {tag}
                         </span>
                       ))}
                   </div>

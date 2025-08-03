@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { recipes } from "@/data/recipes";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeDialog } from "./RecipeDialog";
 import { CreateRecipeDialog } from "./CreateRecipeDialog";
@@ -14,11 +13,20 @@ export function CardWrapped() {
 
   const { savedRecipes, handleSaveRecipe, isRecipeSaved } = useSavedRecipes();
 
-  // Use API recipes when available, fallback to static data
-  const { recipes: apiRecipes, refetch } = useRecipes();
-  const allRecipes = apiRecipes.length > 0 ? apiRecipes : recipes;
+  // Use API recipes when available, fallback to static data only when needed
+  const { recipes: apiRecipes, refetch, isLoading, error } = useRecipes();
+
+  // Debug info
+  console.log("API Recipes:", apiRecipes);
+  console.log("API Loading:", isLoading);
+  console.log("API Error:", error);
+
+  // Use only API recipes - no fallback to static data
+  const allRecipes = Array.isArray(apiRecipes) ? apiRecipes : [];
+  console.log("All Recipes after processing:", allRecipes);
 
   const filteredRecipes = useRecipeFilters(allRecipes);
+  console.log("Filtered Recipes:", filteredRecipes);
 
   const openRecipeDialog = (recipe: recipe) => {
     setSelectedRecipe(recipe);
@@ -36,6 +44,28 @@ export function CardWrapped() {
 
   return (
     <div className="container mx-auto px-6">
+      {/* Status indicator */}
+      {isLoading && (
+        <div className="bg-blue-100 text-blue-800 p-3 rounded mb-4">
+          Loading recipes from server...
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
+          Error loading from server: {error}. Please try again later.
+        </div>
+      )}
+      {!isLoading && !error && apiRecipes.length === 0 && (
+        <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4">
+          No recipes found. Create your first recipe!
+        </div>
+      )}
+      {!isLoading && !error && apiRecipes.length > 0 && (
+        <div className="bg-green-100 text-green-800 p-3 rounded mb-4">
+          Loaded {apiRecipes.length} recipes from server.
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-orange-600 text-2xl font-bold text-center">
           Our Recipes ({filteredRecipes.length})

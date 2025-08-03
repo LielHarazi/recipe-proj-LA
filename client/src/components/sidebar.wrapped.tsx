@@ -16,7 +16,7 @@ export function SidebarWrapped() {
     <Sidebar>
       <SidebarHeader>
         <SidebarTrigger />
-        <h2 className="text-lg font-semibold px-2">L&H Recipe</h2>
+        <h2 className="text-lg font-semibold px-2">L&A Recipe</h2>
       </SidebarHeader>
 
       <SidebarContent>

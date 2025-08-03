@@ -1,5 +1,6 @@
 export interface User {
   id: string;
+  _id?: string; // MongoDB format
   email: string;
   password: string;
   name: string;
@@ -23,15 +24,20 @@ export interface review {
 
 export interface recipe {
   id: string;
+  _id?: string; // MongoDB format
   title: string;
   ingredients: string[];
   instructions: string[];
   authorId: string;
   authorName: string;
+  addedBy?: {
+    _id: string;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   category?: string;
-  dietaryRestrictions?: string[];
+  tags?: string[];
   cookingTime?: string;
   servings?: number;
   difficulty?: string;

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 import type { recipe } from "@/types";
 
 interface FilterState {
-  dietaryRestrictions: string[];
+  tags: string[];
   cookingTimes: string[];
   difficulty: string[];
   searchTerm: string;
@@ -10,7 +10,7 @@ interface FilterState {
 
 interface FilterContextType {
   filters: FilterState;
-  setDietaryFilter: (tag: string, checked: boolean) => void;
+  setTagFilter: (tag: string, checked: boolean) => void;
   setCookingTimeFilter: (time: string, checked: boolean) => void;
   setDifficultyFilter: (difficulty: string, checked: boolean) => void;
   setSearchTerm: (term: string) => void;
@@ -37,18 +37,18 @@ interface FilterProviderProps {
 export const FilterProvider: React.FC<FilterProviderProps> = ({ children }) => {
   const [recipes, setRecipes] = useState<recipe[]>([]);
   const [filters, setFilters] = useState<FilterState>({
-    dietaryRestrictions: [],
+    tags: [],
     cookingTimes: [],
     difficulty: [],
     searchTerm: "",
   });
 
-  // Extract all unique dietary restrictions from recipes
+  // Extract all unique tags from recipes
   const availableTags = React.useMemo(() => {
     const tags = new Set<string>();
     recipes.forEach((recipe) => {
-      if (recipe.dietaryRestrictions) {
-        recipe.dietaryRestrictions.forEach((tag) => tags.add(tag));
+      if (recipe.tags) {
+        recipe.tags.forEach((tag) => tags.add(tag));
       }
       if (recipe.category) {
         tags.add(recipe.category);
@@ -73,11 +73,10 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({ children }) => {
         if (!matchesSearch) return false;
       }
 
-      // Dietary restrictions filter
-      if (filters.dietaryRestrictions.length > 0) {
-        const hasMatchingTag = filters.dietaryRestrictions.some(
-          (tag) =>
-            recipe.category === tag || recipe.dietaryRestrictions?.includes(tag)
+      // Tags filter
+      if (filters.tags.length > 0) {
+        const hasMatchingTag = filters.tags.some(
+          (tag: string) => recipe.category === tag || recipe.tags?.includes(tag)
         );
         if (!hasMatchingTag) return false;
       }
@@ -114,12 +113,12 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({ children }) => {
     });
   }, [recipes, filters]);
 
-  const setDietaryFilter = (tag: string, checked: boolean) => {
+  const setTagFilter = (tag: string, checked: boolean) => {
     setFilters((prev) => ({
       ...prev,
-      dietaryRestrictions: checked
-        ? [...prev.dietaryRestrictions, tag]
-        : prev.dietaryRestrictions.filter((t) => t !== tag),
+      tags: checked
+        ? [...prev.tags, tag]
+        : prev.tags.filter((t: string) => t !== tag),
     }));
   };
 
@@ -150,7 +149,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({ children }) => {
 
   const clearAllFilters = () => {
     setFilters({
-      dietaryRestrictions: [],
+      tags: [],
       cookingTimes: [],
       difficulty: [],
       searchTerm: "",
@@ -161,7 +160,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({ children }) => {
     <FilterContext.Provider
       value={{
         filters,
-        setDietaryFilter,
+        setTagFilter,
         setCookingTimeFilter,
         setDifficultyFilter,
         setSearchTerm,

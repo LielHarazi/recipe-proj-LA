@@ -24,7 +24,7 @@ export const recipeSchema = z.object({
     "gluten-free",
     "quick",
   ]),
-  dietaryRestrictions: z.array(z.string()).optional().default([]),
+  tags: z.array(z.string()).optional().default([]),
   cookingTime: z
     .string()
     .regex(

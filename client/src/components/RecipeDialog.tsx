@@ -7,7 +7,8 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { RecipeReviewDialog } from "./RecipeReviewDialog";
-import { formatCategoryName, getDifficultyColor } from "@/data/recipes";
+import { formatCategoryName, getDifficultyColor } from "@/lib/recipeUtils";
+import { useReviews } from "@/hooks/useReviews";
 import type { recipe } from "@/types";
 
 interface RecipeDialogProps {
@@ -25,6 +26,17 @@ export function RecipeDialog({
   isRecipeSaved,
   onSaveRecipe,
 }: RecipeDialogProps) {
+  // Debug: Check what recipe ID we have
+  console.log("RecipeDialog - Full recipe object:", recipe);
+  const recipeId = recipe?._id || recipe?.id;
+  console.log("RecipeDialog - Extracted recipeId:", recipeId);
+  
+  const {
+    reviews,
+    isLoading: reviewsLoading,
+    refetch: refetchReviews,
+  } = useReviews(recipeId);
+
   if (!recipe) return null;
 
   return (
@@ -69,17 +81,15 @@ export function RecipeDialog({
               <span className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
                 {formatCategoryName(recipe.category || "")}
               </span>
-              {recipe.dietaryRestrictions &&
-                recipe.dietaryRestrictions
-                  .filter(
-                    (restriction: string) => restriction !== recipe.category
-                  )
-                  .map((restriction: string) => (
+              {recipe.tags &&
+                recipe.tags
+                  .filter((tag: string) => tag !== recipe.category)
+                  .map((tag: string) => (
                     <span
-                      key={restriction}
+                      key={tag}
                       className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
                     >
-                      {formatCategoryName(restriction)}
+                      {formatCategoryName(tag)}
                     </span>
                   ))}
             </div>
@@ -116,28 +126,81 @@ export function RecipeDialog({
           <div className="flex flex-col space-y-3 pt-4">
             <div className="flex space-x-3">
               <Button
-                onClick={() => onSaveRecipe(recipe.id)}
+                onClick={() => onSaveRecipe(recipeId || recipe.id)}
                 className={`flex-1 transition-colors ${
-                  isRecipeSaved(recipe.id)
+                  isRecipeSaved(recipeId || recipe.id)
                     ? "bg-red-600 hover:bg-red-700"
                     : "bg-orange-600 hover:bg-orange-700"
                 } text-white`}
               >
-                {isRecipeSaved(recipe.id) ? "❤️ Saved" : "🤍 Save Recipe"}
+                {isRecipeSaved(recipeId || recipe.id) ? "❤️ Saved" : "🤍 Save Recipe"}
               </Button>
               <Button onClick={onClose} variant="outline" className="flex-1">
                 Close
               </Button>
             </div>
 
+            {/* Reviews Section */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                Reviews
+              </h3>
+              {reviewsLoading ? (
+                <p className="text-center text-gray-600">Loading reviews...</p>
+              ) : reviews.length > 0 ? (
+                <div className="space-y-4 max-h-64 overflow-y-auto">
+                  {reviews.map((review: any) => (
+                    <div
+                      key={review.id || review._id}
+                      className="border rounded-lg p-4"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">{review.authorName}</span>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <span
+                              key={i}
+                              className={`text-lg ${
+                                i < review.rating
+                                  ? "text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            >
+                              ⭐
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {review.title && (
+                        <h4 className="font-medium mb-1">{review.title}</h4>
+                      )}
+                      <p className="text-gray-700">
+                        {review.content || review.comment}
+                      </p>
+                      {review.createdAt && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-600">
+                  No reviews yet. Be the first to review!
+                </p>
+              )}
+            </div>
+
             {/* Review Section */}
             <div className="flex justify-center">
               <RecipeReviewDialog
-                recipeId={recipe.id}
+                recipeId={recipeId || recipe.id}
                 recipeTitle={recipe.title}
-                onReviewSubmitted={() =>
-                  console.log("Review submitted for", recipe.title)
-                }
+                onReviewSubmitted={() => {
+                  console.log("Review submitted for", recipe.title);
+                  refetchReviews();
+                }}
               />
             </div>
           </div>

@@ -2,10 +2,18 @@ import { useState, useEffect } from "react";
 import type { recipe } from "@/types";
 
 export function useRecipeFilters(recipes: recipe[]) {
-  const [filteredRecipes, setFilteredRecipes] = useState<recipe[]>(recipes);
+  // Ensure recipes is always an array
+  const safeRecipes = Array.isArray(recipes) ? recipes : [];
+  const [filteredRecipes, setFilteredRecipes] = useState<recipe[]>(safeRecipes);
 
   useEffect(() => {
     const updateFilters = () => {
+      // Early return if no recipes
+      if (safeRecipes.length === 0) {
+        setFilteredRecipes([]);
+        return;
+      }
+
       const checkedDietary = Array.from(
         document.querySelectorAll(
           'input[type="checkbox"][id^="meat"], input[type="checkbox"][id^="vegan"], input[type="checkbox"][id^="kosher"], input[type="checkbox"][id^="dessert"], input[type="checkbox"][id^="gluten-free"]'
@@ -22,14 +30,13 @@ export function useRecipeFilters(recipes: recipe[]) {
         .filter((checkbox: any) => checkbox.checked)
         .map((checkbox: any) => checkbox.id);
 
-      const filtered = recipes.filter((recipe) => {
+      const filtered = safeRecipes.filter((recipe) => {
         const dietaryMatch =
           checkedDietary.length === 0 ||
           checkedDietary.some(
             (dietary) =>
               recipe.category === dietary ||
-              (recipe.dietaryRestrictions &&
-                recipe.dietaryRestrictions.includes(dietary))
+              (recipe.tags && recipe.tags.includes(dietary))
           );
 
         const timeMatch =
@@ -64,7 +71,7 @@ export function useRecipeFilters(recipes: recipe[]) {
         checkbox.removeEventListener("change", updateFilters);
       });
     };
-  }, [recipes]);
+  }, [safeRecipes.length]); // Only depend on length to avoid infinite loops
 
   return filteredRecipes;
 }

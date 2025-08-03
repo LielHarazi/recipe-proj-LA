@@ -135,7 +135,7 @@ export default function Contact() {
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-2">
           <span className="text-xs text-gray-400">
-            L&H Recipe &copy; {new Date().getFullYear()}
+            L&A Recipe &copy; {new Date().getFullYear()}
           </span>
         </CardFooter>
       </Card>

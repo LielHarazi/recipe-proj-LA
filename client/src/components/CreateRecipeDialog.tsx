@@ -141,7 +141,7 @@ export function CreateRecipeDialog({
         ingredients: validation.validIngredients!,
         instructions: validation.validInstructions!,
         servings: parseInt(data.servings),
-        dietaryRestrictions: tags,
+        tags: tags,
         authorId: user.id,
         authorName: user.name,
       });

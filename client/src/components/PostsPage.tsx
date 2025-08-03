@@ -37,7 +37,7 @@ export function PostsPage() {
     );
   }
 
-  if (!postsData) {
+  if (!postsData || !postsData.posts) {
     return (
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
         <p className="text-gray-600">No data available</p>

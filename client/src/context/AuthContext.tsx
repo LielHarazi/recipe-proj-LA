@@ -47,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // הוספת cookies
         body: JSON.stringify({ email, password }),
       });
 
@@ -56,6 +57,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(data.user);
         setIsAuthenticated(true);
         localStorage.setItem("user", JSON.stringify(data.user));
+        // Save token if it exists
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
         return { success: true };
       } else {
         return { success: false, message: data.message };
@@ -73,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // הוספת cookies
         body: JSON.stringify({ name, email, password }),
       });
 
@@ -82,6 +88,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(data.user);
         setIsAuthenticated(true);
         localStorage.setItem("user", JSON.stringify(data.user));
+        // Save token if it exists
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
         return { success: true };
       } else {
         return { success: false, message: data.message };
@@ -99,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (

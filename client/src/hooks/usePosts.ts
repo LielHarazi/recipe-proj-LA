@@ -14,14 +14,16 @@ const fetchPosts = async (): Promise<PostsData> => {
       throw new Error("Failed to fetch posts");
     }
 
-    return await response.json();
+    const result = await response.json();
+    // Extract the data from the server response format
+    return result.data || { posts: [], users: [] };
   } catch (err) {
     console.error("Error fetching posts:", err);
     return {
       posts: [
         {
           id: "1",
-          title: "Welcome to L&H Recipe!",
+          title: "Welcome to L&A Recipe!",
           content:
             "Discover amazing recipes from talented chefs around the world. Share your own culinary creations and connect with fellow food lovers.",
           author: {

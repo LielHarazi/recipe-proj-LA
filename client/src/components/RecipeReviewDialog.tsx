@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
+import { useReviews } from "@/hooks/useReviews";
 import { MessageSquare } from "lucide-react";
 
 const reviewSchema = z.object({
@@ -48,8 +49,8 @@ export function RecipeReviewDialog({
   onReviewSubmitted,
 }: RecipeReviewDialogProps) {
   const { user, isAuthenticated } = useAuth();
+  const { createReview, isCreatingReview } = useReviews(recipeId);
   const [isOpen, setIsOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
   const [selectedRating, setSelectedRating] = useState<number>(0);
 
@@ -72,24 +73,14 @@ export function RecipeReviewDialog({
       return;
     }
 
-    setIsSubmitting(true);
     setError("");
 
     try {
-      // TODO: Replace with actual API call when server is ready
-      const reviewData = {
+      await createReview({
         recipeId,
         rating: selectedRating,
-        comment: data.comment,
-        authorId: user.id,
-        authorName: user.name,
-      };
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // For now, just log the review data
-      console.log("Review submitted:", reviewData);
+        content: data.comment, // This will be mapped to 'comment' in the hook
+      });
 
       // Reset form and close dialog
       form.reset();
@@ -101,8 +92,6 @@ export function RecipeReviewDialog({
       alert("Review submitted successfully!");
     } catch (err: any) {
       setError(err.message || "An error occurred while submitting your review");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -194,10 +183,10 @@ export function RecipeReviewDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || selectedRating === 0}
+                disabled={isCreatingReview || selectedRating === 0}
                 className="bg-orange-600 hover:bg-orange-700"
               >
-                {isSubmitting ? "Submitting..." : "Submit Review"}
+                {isCreatingReview ? "Submitting..." : "Submit Review"}
               </Button>
             </div>
           </form>
