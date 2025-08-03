@@ -230,24 +230,17 @@ export const contactAPI = {
 export const reviewsAPI = {
   getReviews: async (recipeId?: string): Promise<ApiResponse> => {
     try {
-      console.log("reviewsAPI.getReviews called with recipeId:", recipeId);
-      
-      if (!recipeId || recipeId === "undefined") {
-        console.error("Invalid recipe ID provided:", recipeId);
+      if (!recipeId) {
         return {
           success: false,
-          error: "Recipe ID is required and cannot be undefined",
+          error: "Recipe ID is required",
         };
       }
 
-      console.log("Making request to:", `${API_BASE_URL}/reviews/${recipeId}`);
       const response = await fetch(`${API_BASE_URL}/reviews/${recipeId}`, {
         credentials: "include",
       });
-      
-      console.log("Response status:", response.status);
       const data = await response.json();
-      console.log("Response data:", data);
 
       return {
         success: response.ok,
@@ -255,7 +248,6 @@ export const reviewsAPI = {
         message: data.message,
       };
     } catch (error) {
-      console.error("reviewsAPI.getReviews error:", error);
       return {
         success: false,
         error: "Failed to fetch reviews",
