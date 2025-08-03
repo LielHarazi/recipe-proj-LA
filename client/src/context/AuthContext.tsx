@@ -4,15 +4,13 @@ import type { User } from "@/types";
 interface AuthContextType {
   user: User | null;
   login: (
-    name: string,
     email: string,
     password: string
   ) => Promise<{ success: boolean; message?: string }>;
   register: (
     name: string,
     email: string,
-    password: string,
-    age: number
+    password: string
   ) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -42,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const login = async (name: string, email: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
       const response = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
@@ -68,19 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const register = async (
-    name: string,
-    email: string,
-    password: string,
-    age: number
-  ) => {
+  const register = async (name: string, email: string, password: string) => {
     try {
       const response = await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, age }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();

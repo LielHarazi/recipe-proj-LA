@@ -1,5 +1,4 @@
 import express from "express";
-import AuthController from "../controllers/auth.controller";
 import { authenticateToken } from "../middleware/auth.mid";
 import {
   validateCreateInput,
@@ -21,8 +20,8 @@ router.post(
 );
 router.delete(
   "/:id",
-  validateRecipeAndOwner,
   authenticateToken,
+  validateRecipeAndOwner,
   recipeController.remove
 );
 router.patch(

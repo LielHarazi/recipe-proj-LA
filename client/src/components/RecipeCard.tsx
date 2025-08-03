@@ -7,13 +7,13 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import { formatCategoryName, getDifficultyColor } from "@/data/recipes";
-import type { Recipe } from "@/data/recipes";
+import type { recipe } from "@/types";
 
 interface RecipeCardProps {
-  recipe: Recipe;
+  recipe: recipe;
   isRecipeSaved: (id: string) => boolean;
   onSaveRecipe: (id: string) => void;
-  onViewDetails: (recipe: Recipe) => void;
+  onViewDetails: (recipe: recipe) => void;
 }
 
 export function RecipeCard({
@@ -36,10 +36,10 @@ export function RecipeCard({
             </span>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(
-                recipe.difficulty
+                recipe.difficulty || "Easy"
               )}`}
             >
-              {recipe.difficulty}
+              {recipe.difficulty || "Easy"}
             </span>
           </div>
 
@@ -50,18 +50,21 @@ export function RecipeCard({
 
           <div className="flex flex-wrap gap-1">
             <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
-              {formatCategoryName(recipe.category)}
+              {formatCategoryName(recipe.category || "")}
             </span>
-            {recipe.dietaryRestrictions
-              .filter((restriction) => restriction !== recipe.category)
-              .map((restriction) => (
-                <span
-                  key={restriction}
-                  className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-                >
-                  {formatCategoryName(restriction)}
-                </span>
-              ))}
+            {recipe.dietaryRestrictions &&
+              recipe.dietaryRestrictions
+                .filter(
+                  (restriction: string) => restriction !== recipe.category
+                )
+                .map((restriction: string) => (
+                  <span
+                    key={restriction}
+                    className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                  >
+                    {formatCategoryName(restriction)}
+                  </span>
+                ))}
           </div>
 
           <div className="mt-4 space-y-2">

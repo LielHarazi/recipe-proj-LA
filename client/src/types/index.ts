@@ -4,6 +4,10 @@ export interface User {
   password: string;
   name: string;
   createdAt: Date;
+  avatar?: string;
+  role?: string;
+  bio?: string;
+  joinDate?: string;
 }
 
 export interface review {

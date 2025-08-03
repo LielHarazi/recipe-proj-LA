@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postSchema, type PostFormData } from "@/lib/postSchema";
 import { postsAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { StarRating } from "@/components/StarRating";
 import { useAuth } from "@/context/AuthContext";
 
 interface CreatePostFormProps {
@@ -17,23 +16,19 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
   const queryClient = useQueryClient();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [rating, setRating] = useState<number>(0);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
-    setValue,
   } = useForm<PostFormData>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       featured: false,
+      rating: 1,
     },
   });
-
-  const selectedCategory = watch("category");
 
   const createPostMutation = useMutation({
     mutationFn: postsAPI.createPost,
@@ -59,10 +54,7 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
     try {
       setSubmitError(null);
       setSubmitSuccess(false);
-      await createPostMutation.mutateAsync({
-        ...data,
-        authorId: user.id,
-      });
+      await createPostMutation.mutateAsync(data);
     } catch (error) {
       console.error("Error creating post:", error);
     }
@@ -88,7 +80,7 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
         {/* Title */}
         <div>
           <label

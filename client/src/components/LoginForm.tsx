@@ -24,7 +24,6 @@ export function LoginForm() {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
     },
@@ -33,7 +32,7 @@ export function LoginForm() {
   const onSubmit = async (data: LoginSchema) => {
     try {
       setError("");
-      const response = await login(data.name, data.email, data.password);
+      const response = await login(data.email, data.password);
 
       if (response.success) {
         navigate("/reviews");
@@ -59,25 +58,6 @@ export function LoginForm() {
             <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
-
-        {/* Name */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="login-name">Name</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  id="login-name"
-                  placeholder="Enter your name"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         {/* Email */}
         <FormField

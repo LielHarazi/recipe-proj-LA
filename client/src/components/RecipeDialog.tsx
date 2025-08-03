@@ -6,11 +6,12 @@ import {
   DialogDescription,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { RecipeReviewDialog } from "./RecipeReviewDialog";
 import { formatCategoryName, getDifficultyColor } from "@/data/recipes";
-import type { Recipe } from "@/data/recipes";
+import type { recipe } from "@/types";
 
 interface RecipeDialogProps {
-  recipe: Recipe | null;
+  recipe: recipe | null;
   isOpen: boolean;
   onClose: () => void;
   isRecipeSaved: (id: string) => boolean;
@@ -50,10 +51,10 @@ export function RecipeDialog({
                 <span>👥 {recipe.servings} servings</span>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(
-                    recipe.difficulty
+                    recipe.difficulty || "Easy"
                   )}`}
                 >
-                  {recipe.difficulty}
+                  {recipe.difficulty || "Easy"}
                 </span>
               </div>
             </div>
@@ -66,18 +67,21 @@ export function RecipeDialog({
             </h3>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
-                {formatCategoryName(recipe.category)}
+                {formatCategoryName(recipe.category || "")}
               </span>
-              {recipe.dietaryRestrictions
-                .filter((restriction) => restriction !== recipe.category)
-                .map((restriction) => (
-                  <span
-                    key={restriction}
-                    className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
-                  >
-                    {formatCategoryName(restriction)}
-                  </span>
-                ))}
+              {recipe.dietaryRestrictions &&
+                recipe.dietaryRestrictions
+                  .filter(
+                    (restriction: string) => restriction !== recipe.category
+                  )
+                  .map((restriction: string) => (
+                    <span
+                      key={restriction}
+                      className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
+                    >
+                      {formatCategoryName(restriction)}
+                    </span>
+                  ))}
             </div>
           </div>
 
@@ -109,20 +113,33 @@ export function RecipeDialog({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4">
-            <Button
-              onClick={() => onSaveRecipe(recipe.id)}
-              className={`flex-1 transition-colors ${
-                isRecipeSaved(recipe.id)
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-orange-600 hover:bg-orange-700"
-              } text-white`}
-            >
-              {isRecipeSaved(recipe.id) ? "❤️ Saved" : "🤍 Save Recipe"}
-            </Button>
-            <Button onClick={onClose} variant="outline" className="flex-1">
-              Close
-            </Button>
+          <div className="flex flex-col space-y-3 pt-4">
+            <div className="flex space-x-3">
+              <Button
+                onClick={() => onSaveRecipe(recipe.id)}
+                className={`flex-1 transition-colors ${
+                  isRecipeSaved(recipe.id)
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-orange-600 hover:bg-orange-700"
+                } text-white`}
+              >
+                {isRecipeSaved(recipe.id) ? "❤️ Saved" : "🤍 Save Recipe"}
+              </Button>
+              <Button onClick={onClose} variant="outline" className="flex-1">
+                Close
+              </Button>
+            </div>
+
+            {/* Review Section */}
+            <div className="flex justify-center">
+              <RecipeReviewDialog
+                recipeId={recipe.id}
+                recipeTitle={recipe.title}
+                onReviewSubmitted={() =>
+                  console.log("Review submitted for", recipe.title)
+                }
+              />
+            </div>
           </div>
         </div>
       </DialogContent>

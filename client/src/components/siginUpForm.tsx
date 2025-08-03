@@ -28,19 +28,13 @@ export function SignUpForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      age: "",
     },
   });
 
   const onSubmit = async (data: SignupSchema) => {
     try {
       setError("");
-      const response = await register(
-        data.name,
-        data.email,
-        data.password,
-        parseInt(data.age)
-      );
+      const response = await register(data.name, data.email, data.password);
 
       if (response.success) {
         navigate("/reviews");
@@ -129,21 +123,6 @@ export function SignUpForm() {
                   {...field}
                   placeholder="Confirm your password"
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Age */}
-        <FormField
-          control={form.control}
-          name="age"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Age</FormLabel>
-              <FormControl>
-                <Input type="number" {...field} placeholder="Enter your age" />
               </FormControl>
               <FormMessage />
             </FormItem>

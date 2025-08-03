@@ -2,8 +2,10 @@ import { useState } from "react";
 import { recipes } from "@/data/recipes";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeDialog } from "./RecipeDialog";
+import { CreateRecipeDialog } from "./CreateRecipeDialog";
 import { useSavedRecipes } from "@/hooks/useSavedRecipes";
 import { useRecipeFilters } from "@/hooks/useRecipeFilters";
+import { useRecipes } from "@/hooks/useRecipes";
 import type { recipe } from "@/types";
 
 export function CardWrapped() {
@@ -11,7 +13,12 @@ export function CardWrapped() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { savedRecipes, handleSaveRecipe, isRecipeSaved } = useSavedRecipes();
-  const filteredRecipes = useRecipeFilters(recipes);
+
+  // Use API recipes when available, fallback to static data
+  const { recipes: apiRecipes, refetch } = useRecipes();
+  const allRecipes = apiRecipes.length > 0 ? apiRecipes : recipes;
+
+  const filteredRecipes = useRecipeFilters(allRecipes);
 
   const openRecipeDialog = (recipe: recipe) => {
     setSelectedRecipe(recipe);
@@ -23,6 +30,10 @@ export function CardWrapped() {
     setSelectedRecipe(null);
   };
 
+  const handleRecipeCreated = () => {
+    refetch();
+  };
+
   return (
     <div className="container mx-auto px-6">
       <div className="flex justify-between items-center mb-6">
@@ -30,16 +41,21 @@ export function CardWrapped() {
           Our Recipes ({filteredRecipes.length})
         </h2>
 
-        {/* Saved Recipes Counter */}
-        <div className="bg-white rounded-lg px-4 py-2 shadow-md">
-          <div className="flex items-center gap-2">
-            <span>❤️</span>
-            <span className="font-medium">Saved Recipes</span>
-            {savedRecipes.length > 0 && (
-              <span className="bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {savedRecipes.length}
-              </span>
-            )}
+        <div className="flex items-center gap-4">
+          {/* Create Recipe Button */}
+          <CreateRecipeDialog onRecipeCreated={handleRecipeCreated} />
+
+          {/* Saved Recipes Counter */}
+          <div className="bg-white rounded-lg px-4 py-2 shadow-md">
+            <div className="flex items-center gap-2">
+              <span>❤️</span>
+              <span className="font-medium">Saved Recipes</span>
+              {savedRecipes.length > 0 && (
+                <span className="bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {savedRecipes.length}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
