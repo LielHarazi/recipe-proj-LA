@@ -68,6 +68,8 @@ const recipeController = {
             addedBy: { $first: "$addedBy" },
             ingredients: { $first: "$ingredients" },
             instructions: { $first: "$instructions" },
+            tags: { $first: "$tags" },
+            cookingTime: { $first: "$cookingTime" },
             reviews: {
               $push: {
                 _id: "$reviews._id",
@@ -156,6 +158,8 @@ const recipeController = {
             addedBy: { $first: "$addedBy" },
             ingredients: { $first: "$ingredients" },
             instructions: { $first: "$instructions" },
+            tags: { $first: "$tags" },
+            cookingTime: { $first: "$cookingTime" },
             reviews: {
               $push: {
                 _id: "$reviews._id",

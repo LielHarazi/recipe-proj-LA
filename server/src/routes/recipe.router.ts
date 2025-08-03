@@ -11,8 +11,8 @@ import recipeController from "../controllers/recipe.controller";
 const router = express.Router();
 
 router.get("/", recipeController.getAll);
-router.get("/:id", recipeController.getbyId);
 router.get("/full", recipeController.getFull);
+router.get("/:id", recipeController.getbyId);
 router.post(
   "/",
   authenticateToken,
