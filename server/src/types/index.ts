@@ -88,3 +88,9 @@ export interface IRecipe {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface IContact {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  message: string;
+}

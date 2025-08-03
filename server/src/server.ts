@@ -7,7 +7,6 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.router";
 import reviewRoutes from "./routes/reviews.router";
 import recipeRouter from "./routes/recipe.router";
-import postsRouter from "./routes/posts.router";
 import contactRouter from "./routes/contact.router";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { connectDB } from "./config/db";
@@ -36,7 +35,6 @@ app.use(morgan("tiny"));
 app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRouter);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/posts", postsRouter);
 app.use("/api/contact", contactRouter);
 
 // Health check endpoint
