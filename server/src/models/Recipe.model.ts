@@ -11,6 +11,8 @@ const recipeSchema = new Schema<IRecipe>(
     title: String,
     ingredients: [String],
     instructions: [String],
+    tags: [String],
+    cookingTime: Number,
   },
   {
     timestamps: true,

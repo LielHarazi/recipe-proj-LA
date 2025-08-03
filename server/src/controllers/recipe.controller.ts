@@ -206,7 +206,7 @@ const recipeController = {
 
   async create(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { title, ingredients, instructions } = req.body;
+      const { title, ingredients, instructions, tags, cookingTime } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) {
         res.status(400).json({
@@ -219,6 +219,8 @@ const recipeController = {
         title,
         ingredients,
         instructions,
+        tags,
+        cookingTime,
         addedBy: user._id,
       });
       const populatedRecipe = await RecipeModel.findById(
@@ -262,12 +264,12 @@ const recipeController = {
   },
   async update(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { title, ingredients, instructions } = req.body;
+      const { title, ingredients, instructions, tags, cookingTime } = req.body;
       const { id } = req.params;
 
       const upadtedRecipe = await RecipeModel.findByIdAndUpdate(
         id,
-        { title, ingredients, instructions },
+        { title, ingredients, instructions, tags, cookingTime },
         { new: true }
       );
       if (!upadtedRecipe) {

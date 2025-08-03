@@ -104,14 +104,18 @@ export const validateCreateInput = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { title, ingredients, instructions } = req.body;
+  const { title, ingredients, instructions, tags, cookingTime } = req.body;
 
   // Check required fields
-  if (!title || !ingredients || !instructions) {
+  if (!title || !ingredients || !instructions || !tags || !cookingTime) {
     res.status(400).json({ message: "missing fields for recipe" });
     return;
   }
-  if (!Array.isArray(ingredients) || !Array.isArray(instructions)) {
+  if (
+    !Array.isArray(ingredients) ||
+    !Array.isArray(instructions) ||
+    !Array.isArray(tags)
+  ) {
     res
       .status(400)
       .json({ message: "ingredients and instructions must be an array!" });
@@ -125,8 +129,16 @@ export const validateCreateInput = (
     res.status(400).json({ message: "must have at least two ingredients!" });
     return;
   }
+  if (!tags.length) {
+    res.status(400).json({ message: "must have at least one tag!" });
+    return;
+  }
   if (!instructions.length) {
     res.status(400).json({ message: "must have at least one instructions!" });
+    return;
+  }
+  if (isNaN(Number(cookingTime))) {
+    res.status(400).json({ message: "cooking time must be a number" });
     return;
   }
 
@@ -137,10 +149,10 @@ export const validatEditInput = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { title, ingredients, instructions } = req.body;
+  const { title, ingredients, instructions, tags, cookingTime } = req.body;
 
   // Check required fields
-  if (!title && !ingredients && !instructions) {
+  if (!title && !ingredients && !instructions && !tags && !cookingTime) {
     res.status(400).json({ message: "At leat one field is required" });
     return;
   }
@@ -161,8 +173,16 @@ export const validatEditInput = (
     res.status(400).json({ message: "must have at least two ingredients!" });
     return;
   }
+  if (tags && !tags.length) {
+    res.status(400).json({ message: "must have at least one tag!" });
+    return;
+  }
   if (instructions && !instructions.length) {
     res.status(400).json({ message: "must have at least one instructions!" });
+    return;
+  }
+  if (cookingTime && isNaN(Number(cookingTime))) {
+    res.status(400).json({ message: "cooking time must be a number" });
     return;
   }
 
@@ -222,7 +242,7 @@ export const validateReviewCreateInput = (
     res.status(400).json({ message: "comment must be at least 5 characters!" });
     return;
   }
-  if (!Number(rating) || Number(rating) < 0 || Number(rating) > 5) {
+  if (isNaN(Number(rating)) || Number(rating) < 0 || Number(rating) > 5) {
     res.status(400).json({ message: "rating must be a number between 1-5" });
     return;
   }
@@ -246,7 +266,10 @@ export const validateReviewUpdate = async (
     res.status(400).json({ message: "comment must be at least 5 characters!" });
     return;
   }
-  if (rating && (!Number(rating) || Number(rating) < 0 || Number(rating) > 5)) {
+  if (
+    rating &&
+    (isNaN(Number(rating)) || Number(rating) < 0 || Number(rating) > 5)
+  ) {
     res.status(400).json({ message: "rating must be a number between 1-5" });
     return;
   }

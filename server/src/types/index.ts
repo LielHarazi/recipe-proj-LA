@@ -83,6 +83,8 @@ export interface IRecipe {
   title: string;
   ingredients: string[];
   instructions: string[];
+  tags: string[];
+  cookingTime: Number;
   createdAt: Date;
   updatedAt: Date;
 }
