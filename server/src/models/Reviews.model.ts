@@ -1,6 +1,3 @@
-// const WEBHOOK_URL =
-//   "https://discord.com/api/webhooks/1398978982564593725/y2MI9K7jH27k1TmQo9GslhCNLpJBJSdcvF0xDgTPojObsCauuGLG8HneM57m9n1jIJ7A";
-
 import mongoose, { Schema } from "mongoose";
 import { IReview } from "../types";
 
@@ -36,32 +33,3 @@ reviewSchema.pre("save", function (this: IReview, next) {
 
 const Review = mongoose.model<IReview>("Reviews", reviewSchema);
 export default Review;
-
-// async function postToDiscord(
-//   status: "new" | "update",
-//   newPost: { title: string; content: string },
-//   userName: string
-// ) {
-//   console.log("entered func");
-
-//   const contentString = `${
-//     status === "new" ? "new post created by:" : "Post edited! edited by:"
-//   } ${userName}`;
-//   try {
-//     await axios.post(`${WEBHOOK_URL}`, {
-//       content: contentString,
-//       embeds: [
-//         {
-//           title: newPost.title,
-//           description: newPost.content,
-//           color: 3447003,
-//         },
-//       ],
-//     });
-//     console.log("disored posted");
-//   } catch (error) {
-//     console.log("_postToDiscord Error:");
-//     console.log(error);
-//     return new Error("something went erong");
-//   }
-// }

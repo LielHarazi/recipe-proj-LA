@@ -3,6 +3,7 @@ import { LoginRequest, RegisterRequest } from "../types";
 import UserModel from "../models/User";
 import { generateAccessToken, AuthRequest } from "../middleware/auth.mid";
 import bcrypt from "bcryptjs";
+import DiscordHandler from "../discord/discird.handler";
 const validatePassword = async (password: string, hashedPassword: string) => {
   return await bcrypt.compare(password, hashedPassword);
 };
@@ -39,6 +40,7 @@ const AuthController = {
 
       // Generate token
       const token = generateAccessToken({ userId: user.id, email: user.email });
+      DiscordHandler.userToDiscord(name);
 
       // Set HTTP-only cookie
       res.cookie("accessToken", token, {

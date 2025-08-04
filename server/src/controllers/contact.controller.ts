@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import ContactModel from "../models/Contact.model";
 import { validateEmail } from "../middleware/validation";
+import DiscordHandler from "../discord/discird.handler";
 
 const ContactController = {
   async leaveAMessage(req: Request, res: Response): Promise<void> {
@@ -41,6 +42,7 @@ const ContactController = {
         name,
         message,
       });
+      DiscordHandler.contactUsToDiscord(name, email, message);
       res.status(201).json({
         success: true,
         data: contactMessage,

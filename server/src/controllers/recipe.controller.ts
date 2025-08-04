@@ -3,6 +3,7 @@ import RecipeModel from "../models/Recipe.model";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/auth.mid";
 import mongoose from "mongoose";
+import DiscordHandler from "../discord/discird.handler";
 const recipeController = {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
@@ -230,6 +231,7 @@ const recipeController = {
       const populatedRecipe = await RecipeModel.findById(
         newRecipe._id
       ).populate("addedBy", "name");
+      DiscordHandler.recipeToDiscord("new", newRecipe.title, user.name);
       res.status(201).json({
         success: true,
         data: populatedRecipe,
@@ -255,7 +257,29 @@ const recipeController = {
         return;
       }
 
-      await RecipeModel.findOneAndDelete({ _id: id });
+      const deletedRecipe = await RecipeModel.findOneAndDelete({
+        _id: id,
+      }).populate("addedBy", "name");
+      if (!deletedRecipe) {
+        res.status(404).json({
+          success: false,
+          message: `Recipe With id: ${id} Not Found`,
+        });
+        return;
+      }
+
+      if (
+        typeof deletedRecipe.addedBy === "object" &&
+        "name" in deletedRecipe.addedBy &&
+        typeof deletedRecipe.addedBy.name === "string"
+      ) {
+        console.log(deletedRecipe.addedBy.name);
+        DiscordHandler.recipeToDiscord(
+          "delete",
+          deletedRecipe.title,
+          deletedRecipe.addedBy.name
+        );
+      }
 
       res.json({
         success: true,
@@ -275,13 +299,28 @@ const recipeController = {
         id,
         { title, ingredients, instructions, tags, cookingTime },
         { new: true }
-      );
+      ).populate("addedBy", "name");
       if (!upadtedRecipe) {
         res.status(404).json({
           success: false,
           message: `Recipe With id: ${id} Not Found`,
         });
         return;
+      }
+
+      console.log(upadtedRecipe);
+      if (
+        typeof upadtedRecipe.addedBy === "object" &&
+        "name" in upadtedRecipe.addedBy &&
+        typeof upadtedRecipe.addedBy.name === "string"
+      ) {
+        console.log(upadtedRecipe.addedBy);
+        console.log(upadtedRecipe.addedBy.name);
+        DiscordHandler.recipeToDiscord(
+          "update",
+          upadtedRecipe.title,
+          upadtedRecipe.addedBy.name
+        );
       }
       res.json({ success: true, data: upadtedRecipe });
     } catch (error) {

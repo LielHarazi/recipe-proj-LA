@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import RecipeModel from "../models/Recipe.model";
 import { AuthRequest } from "../middleware/auth.mid";
 import ReviewModel from "../models/Reviews.model";
+import DiscordHandler from "../discord/discird.handler";
 import User from "../models/User";
 const reviewsController = {
   async getAll(req: Request, res: Response) {
@@ -100,6 +101,7 @@ const reviewsController = {
         { path: "recipe", select: "title" },
         { path: "reviewer", select: "name" },
       ]);
+      DiscordHandler.reviewToDiscord("new", { rating, comment }, user.name);
 
       res
         .status(201)
@@ -120,7 +122,10 @@ const reviewsController = {
         reviewID,
         { rating: Number(rating), comment },
         { new: true }
-      );
+      ).populate([
+        { path: "recipe", select: "title" },
+        { path: "reviewer", select: "name" },
+      ]);
       if (!upadtedReview) {
         res.status(404).json({
           success: false,
@@ -128,6 +133,19 @@ const reviewsController = {
         });
         return;
       }
+      if (
+        typeof upadtedReview.reviewer === "object" &&
+        "name" in upadtedReview.reviewer &&
+        typeof upadtedReview.reviewer.name === "string"
+      ) {
+        console.log(upadtedReview.reviewer.name);
+        DiscordHandler.reviewToDiscord(
+          "update",
+          { rating: upadtedReview.rating, comment: upadtedReview.comment },
+          upadtedReview.reviewer.name
+        );
+      }
+
       res.json({ success: true, data: upadtedReview });
     } catch (error) {
       console.error("editting review error:", error);
@@ -166,89 +184,5 @@ const reviewsController = {
     }
   },
 };
-// async function update(req: AuthRequest, res: Response) {
-//   const user = await UserModel.findById(req.user!.userId);
-//   const { postId } = req.params;
-
-//   if (!postId) {
-//     return res.status(404).json({ message: "Post not found" });
-//   }
-//   if (!user) {
-//     return res.status(401).json({ message: "You must Be logged in" });
-//   }
-
-//   const { title, content } = req.body ?? {};
-
-//   if (!title || !content) {
-//     console.log("title", title);
-//     console.log("content", content);
-//     return res.status(400).json({ message: "Missing fields" });
-//   }
-
-//   try {
-//     // const { username } = req.user;
-//     const updatedPost = await postsModel.update(
-//       postId,
-//       { title, content },
-//       user.id
-//     );
-//     // postsModel.postToDiscord("update", { title, content }, user.name);
-
-//     return res
-//       .status(200)
-//       .json({ message: "Post updated successfully", updatedPost });
-//   } catch (error) {
-//     console.log(error);
-//     if (error! instanceof Error) {
-//       return res.status(500).json({ message: "unknown error" });
-//     } else if (error instanceof Error) {
-//       switch (error.name) {
-//         case ERROR_NAMES.ERROR_POST_NOT_FOUND:
-//           return res.status(404).json({ message: error.message });
-//         case ERROR_NAMES.ERROR_USER_NOT_FOUND:
-//           return res.status(401).json({ message: error.message });
-//         case ERROR_NAMES.ERROR_UNAUTHORIZED:
-//           return res.status(403).json({ message: error.message });
-//         default:
-//           return res.status(500).json({ message: "Something went wrong" });
-//       }
-//     }
-//   }
-// }
-// async function remove(req: AuthRequest, res: Response) {
-//   const user = await UserModel.findById(req.user!.userId);
-
-//   const { postId } = req.params;
-
-//   if (!postId) {
-//     return res.status(404).json({ message: "Post not found" });
-//   }
-//   if (!user) {
-//     return res.status(401).json({ message: "You must Be logged in" });
-//   }
-
-//   try {
-//     const removedPost = await postsModel.remove(postId, user.id);
-//     return res
-//       .status(200)
-//       .json({ message: "Post removed successfully", removedPost });
-//   } catch (error) {
-//     console.log(error);
-//     if (error! instanceof Error) {
-//       return res.status(500).json({ message: "unknown error" });
-//     } else if (error instanceof Error) {
-//       switch (error.name) {
-//         case ERROR_NAMES.ERROR_POST_NOT_FOUND:
-//           return res.status(404).json({ message: error.message });
-//         case ERROR_NAMES.ERROR_USER_NOT_FOUND:
-//           return res.status(401).json({ message: error.message });
-//         case ERROR_NAMES.ERROR_UNAUTHORIZED:
-//           return res.status(403).json({ message: error.message });
-//         default:
-//           return res.status(500).json({ message: "Something went wrong" });
-//       }
-//     }
-//   }
-// }
 
 export default reviewsController;
