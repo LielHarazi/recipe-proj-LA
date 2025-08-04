@@ -87,6 +87,9 @@ export interface IRecipe {
   cookingTime: Number;
   createdAt: Date;
   updatedAt: Date;
+  description: String;
+  difficulty: String;
+  servings: Number;
 }
 export interface IContact {
   _id: mongoose.Types.ObjectId;

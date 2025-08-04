@@ -71,6 +71,9 @@ const recipeController = {
             instructions: { $first: "$instructions" },
             tags: { $first: "$tags" },
             cookingTime: { $first: "$cookingTime" },
+            description: { $first: "$description" },
+            difficulty: { $first: "$difficulty" },
+            servings: { $first: "$servings" },
             reviews: {
               $push: {
                 _id: "$reviews._id",
@@ -161,6 +164,9 @@ const recipeController = {
             instructions: { $first: "$instructions" },
             tags: { $first: "$tags" },
             cookingTime: { $first: "$cookingTime" },
+            description: { $first: "$description" },
+            difficulty: { $first: "$difficulty" },
+            servings: { $first: "$servings" },
             reviews: {
               $push: {
                 _id: "$reviews._id",
@@ -211,7 +217,16 @@ const recipeController = {
 
   async create(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { title, ingredients, instructions, tags, cookingTime } = req.body;
+      const {
+        title,
+        ingredients,
+        instructions,
+        tags,
+        cookingTime,
+        description,
+        difficulty,
+        servings,
+      } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) {
         res.status(400).json({
@@ -225,6 +240,9 @@ const recipeController = {
         ingredients,
         instructions,
         tags,
+        description,
+        difficulty,
+        servings,
         cookingTime,
         addedBy: user._id,
       });
@@ -292,12 +310,30 @@ const recipeController = {
   },
   async update(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { title, ingredients, instructions, tags, cookingTime } = req.body;
+      const {
+        title,
+        ingredients,
+        instructions,
+        tags,
+        cookingTime,
+        description,
+        difficulty,
+        servings,
+      } = req.body;
       const { id } = req.params;
 
       const upadtedRecipe = await RecipeModel.findByIdAndUpdate(
         id,
-        { title, ingredients, instructions, tags, cookingTime },
+        {
+          title,
+          ingredients,
+          instructions,
+          tags,
+          cookingTime,
+          description,
+          difficulty,
+          servings,
+        },
         { new: true }
       ).populate("addedBy", "name");
       if (!upadtedRecipe) {
