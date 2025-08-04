@@ -43,10 +43,10 @@ export function CardWrapped() {
 
   return (
     <SidebarProvider>
-      <div className="flex max-h-screen">
+      <div className="flex min-h-screen">
         <SidebarWrapped />
-        <div className="flex-1 p-6 flex justify-center">
-          <div className="container mx-auto px-6 flex flex-col items-center">
+        <div className="flex-1 p-6 flex justify-center relative">
+          <div className="container mx-auto px-6 flex flex-col items-center relative z-10">
             {/* Status indicator */}
             {isLoading && (
               <div className="bg-blue-100 text-blue-800 p-3 rounded mb-4">
