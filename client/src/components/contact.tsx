@@ -40,7 +40,7 @@ export default function Contact() {
   };
 
   return (
-    <div>
+    <div className="p-6">
       <Card className="w-full max-w-lg mx-auto">
         <CardHeader>
           <CardTitle>Contact Our Chefs</CardTitle>

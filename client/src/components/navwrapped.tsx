@@ -22,44 +22,48 @@ export function NavWrapped() {
     <nav className="w-full border-b bg-white shadow-sm sticky top-0 z-50">
       <div className="w-full px-8">
         <div className="flex h-20 items-center justify-between w-full">
-          {/* Navigation Menu */}
-          <NavigationMenu>
-            <NavigationMenuList className="flex items-center gap-8">
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to="/contact"
-                    className="px-6 py-2 text-lg font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-100 rounded-md transition-all duration-200"
-                  >
-                    Contact
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+          {/* Logo and Navigation Menu */}
+          <div className="flex items-center gap-8 flex-grow">
+            <h1 className="text-2xl font-bold text-orange-600 whitespace-nowrap">
+              L&amp;A Recipe
+            </h1>
+            <NavigationMenu className="flex-grow max-w-none w-full">
+              <NavigationMenuList className="flex items-center gap-8 w-full">
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/contact"
+                      className="px-6 py-2 text-lg font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-100 rounded-md transition-all duration-200"
+                    >
+                      Contact
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to="/recipes"
-                    className="px-6 py-2 text-lg font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-100 rounded-md transition-all duration-200"
-                  >
-                    Recipes
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/recipes"
+                      className="px-6 py-2 text-lg font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-100 rounded-md transition-all duration-200"
+                    >
+                      Recipes
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to="/reviews"
-                    className="px-6 py-2 text-lg font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-100 rounded-md transition-all duration-200"
-                  >
-                    Reviews
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/reviews"
+                      className="px-6 py-2 text-lg font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-100 rounded-md transition-all duration-200"
+                    >
+                      Reviews
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>{" "}
           {/* User Authentication */}
           <div className="flex items-center gap-4">
             {isAuthenticated ? (

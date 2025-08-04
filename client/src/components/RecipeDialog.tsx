@@ -15,17 +15,11 @@ interface RecipeDialogProps {
   recipe: recipe | null;
   isOpen: boolean;
   onClose: () => void;
-  isRecipeSaved: (id: string) => boolean;
-  onSaveRecipe: (id: string) => void;
+  isRecipeSaved?: (id: string) => boolean;
+  onSaveRecipe?: (id: string) => void;
 }
 
-export function RecipeDialog({
-  recipe,
-  isOpen,
-  onClose,
-  isRecipeSaved,
-  onSaveRecipe,
-}: RecipeDialogProps) {
+export function RecipeDialog({ recipe, isOpen, onClose }: RecipeDialogProps) {
   const {
     reviews,
     isLoading: reviewsLoading,
@@ -122,18 +116,8 @@ export function RecipeDialog({
 
           {/* Action Buttons */}
           <div className="flex flex-col space-y-3 pt-4">
-            <div className="flex space-x-3">
-              <Button
-                onClick={() => onSaveRecipe(recipe._id!)}
-                className={`flex-1 transition-colors ${
-                  isRecipeSaved(recipe._id)
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-orange-600 hover:bg-orange-700"
-                } text-white`}
-              >
-                {isRecipeSaved(recipe._id) ? "❤️ Saved" : "🤍 Save Recipe"}
-              </Button>
-              <Button onClick={onClose} variant="outline" className="flex-1">
+            <div className="flex justify-center">
+              <Button onClick={onClose} variant="outline" className="px-8">
                 Close
               </Button>
             </div>

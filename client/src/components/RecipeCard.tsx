@@ -13,17 +13,12 @@ import type { recipe } from "@/types";
 
 interface RecipeCardProps {
   recipe: recipe;
-  isRecipeSaved: (id: string) => boolean;
-  onSaveRecipe: (id: string) => void;
+  isRecipeSaved?: (id: string) => boolean;
+  onSaveRecipe?: (id: string) => void;
   onViewDetails: (recipe: recipe) => void;
 }
 
-export function RecipeCard({
-  recipe,
-  isRecipeSaved,
-  onSaveRecipe,
-  onViewDetails,
-}: RecipeCardProps) {
+export function RecipeCard({ recipe, onViewDetails }: RecipeCardProps) {
   const { user } = useAuth();
   const { deleteRecipe, isDeletingRecipe } = useRecipes();
 
@@ -114,16 +109,6 @@ export function RecipeCard({
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               View Recipe Details
-            </Button>
-            <Button
-              onClick={() => onSaveRecipe(recipe.id)}
-              className={`w-full transition-colors ${
-                isRecipeSaved(recipe.id)
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-orange-600 hover:bg-orange-700"
-              } text-white`}
-            >
-              {isRecipeSaved(recipe.id) ? "❤️ Saved" : "🤍 Save Recipe"}
             </Button>
             {canDelete && (
               <Button

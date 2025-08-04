@@ -45,69 +45,71 @@ export function LoginForm() {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 max-w-md mx-auto p-6 bg-white rounded shadow"
-      >
-        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <p className="text-red-600 text-sm">{error}</p>
-          </div>
-        )}
-
-        {/* Email */}
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="login-email">Email</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  {...field}
-                  id="login-email"
-                  placeholder="Enter your email"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Password */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="login-password">Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  {...field}
-                  id="login-password"
-                  placeholder="Enter your password"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="w-full"
+    <div className="p-6">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 max-w-md mx-auto p-6 bg-white rounded shadow"
         >
-          Login
-        </Button>
-      </form>
-    </Form>
+          <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Email */}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="login-email">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    {...field}
+                    id="login-email"
+                    placeholder="Enter your email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Password */}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="login-password">Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    {...field}
+                    id="login-password"
+                    placeholder="Enter your password"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="w-full"
+          >
+            Login
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }
