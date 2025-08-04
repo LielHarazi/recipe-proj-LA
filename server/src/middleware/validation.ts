@@ -104,10 +104,28 @@ export const validateCreateInput = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { title, ingredients, instructions, tags, cookingTime } = req.body;
+  const {
+    title,
+    ingredients,
+    instructions,
+    tags,
+    cookingTime,
+    description,
+    difficulty,
+    servings,
+  } = req.body;
 
   // Check required fields
-  if (!title || !ingredients || !instructions || !tags || !cookingTime) {
+  if (
+    !title ||
+    !ingredients ||
+    !instructions ||
+    !tags ||
+    !cookingTime ||
+    !description ||
+    !difficulty ||
+    !servings
+  ) {
     res.status(400).json({ message: "missing fields for recipe" });
     return;
   }
@@ -123,6 +141,18 @@ export const validateCreateInput = (
   }
   if (title.length < 2) {
     res.status(400).json({ message: "title must be at least tow characters!" });
+    return;
+  }
+  if (difficulty.length < 2) {
+    res
+      .status(400)
+      .json({ message: "difficulty must be at least tow characters!" });
+    return;
+  }
+  if (description.length < 2) {
+    res
+      .status(400)
+      .json({ message: "description must be at least tow characters!" });
     return;
   }
   if (ingredients.length < 2) {
@@ -141,6 +171,10 @@ export const validateCreateInput = (
     res.status(400).json({ message: "cooking time must be a number" });
     return;
   }
+  if (isNaN(Number(servings))) {
+    res.status(400).json({ message: "servings time must be a number" });
+    return;
+  }
 
   next();
 };
@@ -149,10 +183,28 @@ export const validatEditInput = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { title, ingredients, instructions, tags, cookingTime } = req.body;
+  const {
+    title,
+    ingredients,
+    instructions,
+    tags,
+    cookingTime,
+    description,
+    difficulty,
+    servings,
+  } = req.body;
 
   // Check required fields
-  if (!title && !ingredients && !instructions && !tags && !cookingTime) {
+  if (
+    !title &&
+    !ingredients &&
+    !instructions &&
+    !tags &&
+    !cookingTime &&
+    !description &&
+    !difficulty &&
+    !servings
+  ) {
     res.status(400).json({ message: "At leat one field is required" });
     return;
   }
@@ -169,6 +221,18 @@ export const validatEditInput = (
     res.status(400).json({ message: "title must be at least tow characters!" });
     return;
   }
+  if (difficulty && difficulty.length < 2) {
+    res
+      .status(400)
+      .json({ message: "difficulty must be at least tow characters!" });
+    return;
+  }
+  if (description && description.length < 2) {
+    res
+      .status(400)
+      .json({ message: "description must be at least tow characters!" });
+    return;
+  }
   if (ingredients && ingredients.length < 2) {
     res.status(400).json({ message: "must have at least two ingredients!" });
     return;
@@ -183,6 +247,10 @@ export const validatEditInput = (
   }
   if (cookingTime && isNaN(Number(cookingTime))) {
     res.status(400).json({ message: "cooking time must be a number" });
+    return;
+  }
+  if (servings && isNaN(Number(servings))) {
+    res.status(400).json({ message: "servings time must be a number" });
     return;
   }
 
