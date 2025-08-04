@@ -260,6 +260,8 @@ export const reviewsAPI = {
     rating: number;
     comment: string;
   }): Promise<ApiResponse> => {
+    console.log(reviewData);
+
     try {
       const { recipeId, ...bodyData } = reviewData;
       const response = await fetch(`${API_BASE_URL}/reviews/${recipeId}`, {

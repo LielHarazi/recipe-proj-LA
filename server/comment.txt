@@ -1,0 +1,139 @@
+same names for files based on role, example: errorHandler.ts => errorHandler.middleware.ts
+
+types: each resource types folder of its own, example auth.types.ts
+
+ERROR HANDLING
+use the errorHanlder middleware insted returning response of an error where the error accoured + return responses (good practice not mandatory),
+the CustomError should be a class that extends Error class, the constructor recives 2 parameters: message: string, statusCode: number, example:
+
+export class CustomError extends Error {
+    public statusCode: number;
+    public isOperational: boolean; => (best practice and convension in error handling)
+
+    constructor (message: string, statusCode: number = 500) {
+        super(message); => (call the Error constructor with the message)
+        this.statusCode = statusCode;
+        this.isOperational = true;
+    }
+
+    Error.captureStackTrace(this, this.constructor); (capture stack trace without the CustomError definition path)
+}
+
+BEFORE
+async logout(req: Request, res: Response): Promise<void> {
+    try {
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Server error during logout" });
+    }
+  },
+
+AFTER => changed lines marked with ---<change>---
+async logout(req: Request, res: Response): Promise<void> {
+    try {
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+      ---return--- res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      ---if (error instanceof Error) {
+        return next(new CustomError(error.message), 400)
+      }---
+      console.error("Logout error:", error);
+
+      ----return next(error);---
+    }
+  },
+
+avoid validating input formats in controllers, controllers are reached only if validation passed in validation middlewares
+
+BEFORE
+const ContactController = {
+  async leaveAMessage(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, message, name } = req.body;
+
+      // Check required fields
+      if (!email || !message || !name) {
+        res
+          .status(400)
+          .json({ message: "All fields (email, password, name) are required" });
+        return;
+      }
+
+      // Validate email format
+      if (!validateEmail(email)) {
+        res
+          .status(400)
+          .json({ message: "Please provide a valid email address" });
+        return;
+      }
+
+      // Validate name length
+      if (name.trim().length < 2) {
+        res
+          .status(400)
+          .json({ message: "Name must be at least 2 characters long" });
+        return;
+      }
+      if (message.trim().length < 5) {
+        res
+          .status(400)
+          .json({ message: "Message must be at least 5 characters long" });
+        return;
+      }
+      const contactMessage = await ContactModel.create({
+        email,
+        name,
+        message,
+      });
+      res.status(201).json({
+        success: true,
+        data: contactMessage,
+      });
+    } catch (error) {
+      console.error("creating contact request error:", error);
+      res.status(500).json({
+        message: "Server error during creating contact request",
+        error,
+      });
+    }
+  },
+};
+AFTER
+const ContactController = {
+  async leaveAMessage(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, message, name } = req.body; => (this is allready validated in middleware no need to check it again)
+      const contactMessage = await ContactModel.create({
+        email,
+        name,
+        message,
+      });
+      res.status(201).json({
+        success: true,
+        data: contactMessage,
+      });
+    } catch (error) {
+      console.error("creating contact request error:", error);
+      if (error instanceof Error) {
+        return next(new CustomError(error.message), ***) (if the validation passed and we reached the controller the input is ok so its not 400,
+        think of possible errors to decide the possible statusCode, most likely its internal server error 500)
+      }
+      return next(error);
+    }
+  },
+};
+
+
+
+
+export default ContactController;

@@ -30,9 +30,12 @@ export function RecipeDialog({
     reviews,
     isLoading: reviewsLoading,
     refetch: refetchReviews,
-  } = useReviews(recipe?.id);
+  } = useReviews(recipe?._id);
+  console.log(recipe);
 
   if (!recipe) return null;
+  if (!recipe._id) return null;
+  console.log(reviews);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -121,14 +124,14 @@ export function RecipeDialog({
           <div className="flex flex-col space-y-3 pt-4">
             <div className="flex space-x-3">
               <Button
-                onClick={() => onSaveRecipe(recipe.id)}
+                onClick={() => onSaveRecipe(recipe._id!)}
                 className={`flex-1 transition-colors ${
-                  isRecipeSaved(recipe.id)
+                  isRecipeSaved(recipe._id)
                     ? "bg-red-600 hover:bg-red-700"
                     : "bg-orange-600 hover:bg-orange-700"
                 } text-white`}
               >
-                {isRecipeSaved(recipe.id) ? "❤️ Saved" : "🤍 Save Recipe"}
+                {isRecipeSaved(recipe._id) ? "❤️ Saved" : "🤍 Save Recipe"}
               </Button>
               <Button onClick={onClose} variant="outline" className="flex-1">
                 Close
@@ -190,7 +193,7 @@ export function RecipeDialog({
             {/* Review Section */}
             <div className="flex justify-center">
               <RecipeReviewDialog
-                recipeId={recipe.id}
+                recipeId={recipe._id}
                 recipeTitle={recipe.title}
                 onReviewSubmitted={() => {
                   console.log("Review submitted for", recipe.title);
