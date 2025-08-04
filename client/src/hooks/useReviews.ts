@@ -13,7 +13,6 @@ export const useReviews = (recipeId?: string) => {
     queryKey: ["reviews", recipeId],
     queryFn: async () => {
       const response = await reviewsAPI.getReviews(recipeId);
-      console.log("Reviews API response:", response);
 
       if (response.success) {
         // Handle nested data structure like recipes

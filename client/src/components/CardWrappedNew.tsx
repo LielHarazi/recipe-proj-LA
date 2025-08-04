@@ -15,17 +15,10 @@ export function CardWrapped() {
   // Use API recipes when available, fallback to static data only when needed
   const { recipes: apiRecipes, refetch, isLoading, error } = useRecipes();
 
-  // Debug info
-  console.log("API Recipes:", apiRecipes);
-  console.log("API Loading:", isLoading);
-  console.log("API Error:", error);
-
   // Use only API recipes - no fallback to static data
   const allRecipes = Array.isArray(apiRecipes) ? apiRecipes : [];
-  console.log("All Recipes after processing:", allRecipes);
 
   const filteredRecipes = useRecipeFilters(allRecipes);
-  console.log("Filtered Recipes:", filteredRecipes);
 
   const openRecipeDialog = (recipe: recipe) => {
     setSelectedRecipe(recipe);

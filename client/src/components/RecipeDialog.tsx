@@ -25,11 +25,9 @@ export function RecipeDialog({ recipe, isOpen, onClose }: RecipeDialogProps) {
     isLoading: reviewsLoading,
     refetch: refetchReviews,
   } = useReviews(recipe?._id);
-  console.log(recipe);
 
   if (!recipe) return null;
   if (!recipe._id) return null;
-  console.log(reviews);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -180,7 +178,6 @@ export function RecipeDialog({ recipe, isOpen, onClose }: RecipeDialogProps) {
                 recipeId={recipe._id}
                 recipeTitle={recipe.title}
                 onReviewSubmitted={() => {
-                  console.log("Review submitted for", recipe.title);
                   refetchReviews();
                 }}
               />

@@ -72,7 +72,7 @@ export const postsAPI = {
   getPosts: async (): Promise<ApiResponse> => {
     try {
       const response = await fetch(`${API_BASE_URL}/posts`, {
-        credentials: "include", // הוספת cookies
+        credentials: "include",
       });
       const data = await response.json();
 
@@ -100,7 +100,7 @@ export const postsAPI = {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // הוספת cookies
+        credentials: "include",
         body: JSON.stringify(postData),
       });
 
@@ -122,14 +122,11 @@ export const postsAPI = {
 export const recipesAPI = {
   getRecipes: async (): Promise<ApiResponse> => {
     try {
-      console.log("Making API call to:", `${API_BASE_URL}/recipes`);
       const response = await fetch(`${API_BASE_URL}/recipes`, {
-        credentials: "include", // הוספת cookies
+        credentials: "include",
       });
-      console.log("API response status:", response.status, response.ok);
 
       const data = await response.json();
-      console.log("API response data:", data);
 
       return {
         success: response.ok,
@@ -152,7 +149,7 @@ export const recipesAPI = {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // הוספת cookies
+        credentials: "include",
         body: JSON.stringify(recipeData),
       });
 
@@ -172,15 +169,12 @@ export const recipesAPI = {
 
   deleteRecipe: async (recipeId: string): Promise<ApiResponse> => {
     try {
-      console.log("Deleting recipe with ID:", recipeId);
       const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`, {
         method: "DELETE",
         credentials: "include",
       });
 
-      console.log("Delete response status:", response.status);
       const data = await response.json();
-      console.log("Delete response data:", data);
 
       return {
         success: response.ok,
@@ -260,8 +254,6 @@ export const reviewsAPI = {
     rating: number;
     comment: string;
   }): Promise<ApiResponse> => {
-    console.log(reviewData);
-
     try {
       const { recipeId, ...bodyData } = reviewData;
       const response = await fetch(`${API_BASE_URL}/reviews/${recipeId}`, {

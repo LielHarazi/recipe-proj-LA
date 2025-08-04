@@ -14,10 +14,6 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
   onLike,
   onComment,
 }) => {
-  // Debug logging
-  console.log("ReviewCard - Post data:", post);
-  console.log("ReviewCard - Rating:", post.rating);
-
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();

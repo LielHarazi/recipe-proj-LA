@@ -22,10 +22,6 @@ export function RecipeCard({ recipe, onViewDetails }: RecipeCardProps) {
   const { user } = useAuth();
   const { deleteRecipe, isDeletingRecipe } = useRecipes();
 
-  // Debug: Log the recipe data to understand the structure
-  console.log("Recipe data:", recipe);
-  console.log("User:", user);
-
   // Get author info from addedBy or fallback to authorId/authorName
   const authorId = recipe.addedBy?._id || recipe.authorId;
   const authorName = recipe.addedBy?.name || recipe.authorName;
@@ -38,9 +34,6 @@ export function RecipeCard({ recipe, onViewDetails }: RecipeCardProps) {
       try {
         // Use _id if available, otherwise fall back to id
         const recipeId = recipe._id || recipe.id;
-        console.log("Attempting to delete recipe with ID:", recipeId);
-        console.log("Recipe object:", recipe);
-        console.log("User object:", user);
         await deleteRecipe(recipeId);
       } catch (error) {
         console.error("Delete error:", error);
