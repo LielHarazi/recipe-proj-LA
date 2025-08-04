@@ -16,9 +16,16 @@ interface RecipeCardProps {
   isRecipeSaved?: (id: string) => boolean;
   onSaveRecipe?: (id: string) => void;
   onViewDetails: (recipe: recipe) => void;
+  onEditRecipe?: (recipe: recipe) => void;
 }
 
-export function RecipeCard({ recipe, onViewDetails }: RecipeCardProps) {
+export function RecipeCard({
+  recipe,
+  isRecipeSaved,
+  onSaveRecipe,
+  onViewDetails,
+  onEditRecipe,
+}: RecipeCardProps) {
   const { user } = useAuth();
   const { deleteRecipe, isDeletingRecipe } = useRecipes();
 
@@ -104,13 +111,21 @@ export function RecipeCard({ recipe, onViewDetails }: RecipeCardProps) {
               View Recipe Details
             </Button>
             {canDelete && (
-              <Button
-                onClick={handleDelete}
-                disabled={isDeletingRecipe}
-                className="w-full bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
-              >
-                {isDeletingRecipe ? "Deleting..." : "🗑️ Delete Recipe"}
-              </Button>
+              <>
+                <Button
+                  onClick={() => onEditRecipe?.(recipe)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                  ✏️ Edit Recipe
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  disabled={isDeletingRecipe}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+                >
+                  {isDeletingRecipe ? "Deleting..." : "🗑️ Delete Recipe"}
+                </Button>
+              </>
             )}
           </div>
         </div>

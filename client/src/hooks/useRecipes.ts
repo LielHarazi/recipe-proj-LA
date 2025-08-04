@@ -71,6 +71,25 @@ export const useRecipes = () => {
     },
   });
 
+  const updateRecipeMutation = useMutation({
+    mutationFn: async ({
+      recipeId,
+      updatedData,
+    }: {
+      recipeId: string;
+      updatedData: any;
+    }) => {
+      const response = await recipesAPI.updateRecipe(recipeId, updatedData);
+      if (!response.success) {
+        throw new Error(response.error || "Failed to update recipe");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+
   return {
     recipes: recipesData || [],
     isLoading,
@@ -78,6 +97,8 @@ export const useRecipes = () => {
     refetch,
     createRecipe: createRecipeMutation.mutateAsync,
     isCreatingRecipe: createRecipeMutation.isPending,
+    updateRecipe: updateRecipeMutation.mutateAsync,
+    isUpdatingRecipe: updateRecipeMutation.isPending,
     deleteRecipe: deleteRecipeMutation.mutateAsync,
     isDeletingRecipe: deleteRecipeMutation.isPending,
   };

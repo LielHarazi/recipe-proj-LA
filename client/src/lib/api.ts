@@ -167,6 +167,34 @@ export const recipesAPI = {
     }
   },
 
+  updateRecipe: async (
+    recipeId: string,
+    recipeData: any
+  ): Promise<ApiResponse> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(recipeData),
+      });
+
+      const data = await response.json();
+      return {
+        success: response.ok,
+        data: response.ok ? data : null,
+        message: data.message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to update recipe",
+      };
+    }
+  },
+
   deleteRecipe: async (recipeId: string): Promise<ApiResponse> => {
     try {
       const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`, {

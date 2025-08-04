@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeDialog } from "./RecipeDialog";
 import { CreateRecipeDialog } from "./CreateRecipeDialog";
+import { EditRecipeDialog } from "./EditRecipeDialog";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarWrapped } from "./sidebar.wrapped";
 import { useRecipeFilters } from "@/hooks/useRecipeFilters";
@@ -11,6 +12,8 @@ import type { recipe } from "@/types";
 export function CardWrapped() {
   const [selectedRecipe, setSelectedRecipe] = useState<recipe | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<recipe | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Use API recipes when available, fallback to static data only when needed
   const { recipes: apiRecipes, refetch, isLoading, error } = useRecipes();
@@ -30,8 +33,23 @@ export function CardWrapped() {
     setSelectedRecipe(null);
   };
 
+  const openEditDialog = (recipe: recipe) => {
+    setEditingRecipe(recipe);
+    setIsEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setIsEditDialogOpen(false);
+    setEditingRecipe(null);
+  };
+
   const handleRecipeCreated = () => {
     refetch();
+  };
+
+  const handleRecipeUpdated = () => {
+    refetch();
+    closeEditDialog();
   };
 
   return (
@@ -82,6 +100,7 @@ export function CardWrapped() {
                   key={recipe.id}
                   recipe={recipe}
                   onViewDetails={openRecipeDialog}
+                  onEditRecipe={openEditDialog}
                 />
               ))}
             </div>
@@ -102,6 +121,14 @@ export function CardWrapped() {
               recipe={selectedRecipe}
               isOpen={isDialogOpen}
               onClose={closeRecipeDialog}
+            />
+
+            {/* Edit Recipe Dialog */}
+            <EditRecipeDialog
+              recipe={editingRecipe}
+              isOpen={isEditDialogOpen}
+              onClose={closeEditDialog}
+              onRecipeUpdated={handleRecipeUpdated}
             />
           </div>
         </div>

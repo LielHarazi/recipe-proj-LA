@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { contactSchema, type ContactFormData } from "@/lib/schemas";
 import { contactAPI } from "@/lib/api";
+import RollingGallery from "./ui/RollingGallery.tsx";
 
 export default function Contact() {
   const {
@@ -139,6 +140,8 @@ export default function Contact() {
           </span>
         </CardFooter>
       </Card>
+
+      <RollingGallery autoplay={true} pauseOnHover={true} />
     </div>
   );
 }
